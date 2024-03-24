@@ -78,22 +78,22 @@ jobs:
       with:
         toolchain: stable
 
-    # - name: Setup Deno
-    #   uses: denoland/setup-deno@v1
-    #   with:
-    #     deno-version: vx.x.x
+    - name: Setup Deno
+      uses: denoland/setup-deno@v1
+      with:
+        deno-version: vx.x.x
 
     - name: Cargo Build and Test
       env:
         RUSTFLAGS: -Awarnings
       run: |
+        cd rust
         rustup target add ${{ matrix.target }}
         export PATH=${PATH}:${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin
         export AR=llvm-ar
         export CC = ${{ matrix.clang_arch }}-linux-android24-clang
         export CXX = ${{ matrix.clang_arch }}-linux-android24-clang++
         export RUSTFLAGS="-L ${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.6/lib/linux/${{ matrix.clang_arch2 }} -L ${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.target_arch }}-linux-android/24 -C target-feature=+crt-static"
-        cd rust
         cargo build --release --target ${{ matrix.target }}
         deno run --allow-all ../scripts/ts/copy_swc4j_lib.ts -o ${{ matrix.os }} -a ${{ matrix.out }}
 
