@@ -70,7 +70,7 @@ jobs:
       id: setup-ndk
       uses: nttld/setup-ndk@v1
       with:
-        ndk-version: r24b
+        ndk-version: r24
         local-cache: false
 
     - name: Setup Rust
