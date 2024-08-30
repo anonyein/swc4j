@@ -56,7 +56,6 @@ jobs:
         RUSTFLAGS: -Awarnings
       run: |
         cd rust
-        cargo check -p ndk-sys --all-targets --all-features --target ${{ matrix.target }}
         cargo build -r --target ${{ matrix.target }}
         deno run --allow-all ../scripts/ts/copy_swc4j_lib.ts -o ${{ matrix.os }} -a ${{ matrix.arch }}
 
