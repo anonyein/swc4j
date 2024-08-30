@@ -15,15 +15,18 @@
 * limitations under the License.
 */
 
-use deno_ast::{
-  swc::{atoms::JsWord, common::Spanned, common::BytePos, parser::token::{IdentLike, Keyword, Token, Word}}, MediaType,
+use deno_ast::swc::{
+  atoms::JsWord,
+  common::{comments::CommentKind, BytePos, Span, Spanned},
+  parser::token::{IdentLike, Keyword, Token, Word},
 };
 
+use enums::*;
 use swc4j::*;
 
 #[test]
 fn test_get_version() {
-  assert_eq!(core::get_version(), "0.2.0");
+  assert_eq!(core::get_version(), "1.0.0");
 }
 
 #[test]
@@ -43,24 +46,8 @@ fn test_parse_jsx_with_default_options() {
   let output = core::parse(code.to_owned(), options);
   assert!(output.is_ok());
   let output = output.unwrap();
-  assert!(output.module);
-  assert!(!output.script);
+  assert!(matches!(output.parse_mode, ParseMode::Module));
   assert_eq!(MediaType::Jsx, output.media_type);
-}
-
-#[test]
-fn test_parse_typescript_with_default_options() {
-  let code = "function add(a:number, b:number) { return a+b; }";
-  let options = options::ParseOptions {
-    media_type: MediaType::TypeScript,
-    ..Default::default()
-  };
-  let output = core::parse(code.to_owned(), options);
-  assert!(output.is_ok());
-  let output = output.unwrap();
-  assert!(output.module);
-  assert!(!output.script);
-  assert!(output.tokens.is_none());
 }
 
 #[test]
@@ -74,8 +61,7 @@ fn test_parse_typescript_with_capture_tokens() {
   let output = core::parse(code.to_owned(), options);
   assert!(output.is_ok());
   let output = output.unwrap();
-  assert!(output.module);
-  assert!(!output.script);
+  assert!(matches!(output.parse_mode, ParseMode::Script));
   assert!(output.tokens.is_some());
   let tokens = output.tokens.unwrap();
   /*
@@ -118,9 +104,63 @@ fn test_parse_typescript_with_capture_tokens() {
 }
 
 #[test]
+fn test_parse_typescript_with_default_options() {
+  let code = "function add(a:number, b:number) { return a+b; }";
+  let options = options::ParseOptions {
+    media_type: MediaType::TypeScript,
+    ..Default::default()
+  };
+  let output = core::parse(code.to_owned(), options);
+  assert!(output.is_ok());
+  let output = output.unwrap();
+  assert!(matches!(output.parse_mode, ParseMode::Script));
+  assert!(output.tokens.is_none());
+}
+
+#[test]
+fn test_parse_typescript_with_comments() {
+  let code = "let a: /* Comment 1 */ number = 1; // Comment 2";
+  let options = options::ParseOptions {
+    media_type: MediaType::TypeScript,
+    capture_comments: true,
+    ..Default::default()
+  };
+  let output = core::parse(code.to_owned(), options);
+  assert!(output.is_ok());
+  let output = output.unwrap();
+  let comments = output.comments.unwrap();
+  let all_comments = comments.get_vec();
+  assert_eq!(2, all_comments.len());
+  assert_eq!(CommentKind::Block, all_comments[0].kind);
+  assert_eq!(
+    Span {
+      lo: BytePos(8),
+      hi: BytePos(23),
+      ..Default::default()
+    },
+    all_comments[0].span
+  );
+  assert_eq!(" Comment 1 ", all_comments[0].text.as_str());
+  assert_eq!(CommentKind::Line, all_comments[1].kind);
+  assert_eq!(
+    Span {
+      lo: BytePos(36),
+      hi: BytePos(48),
+      ..Default::default()
+    },
+    all_comments[1].span
+  );
+  assert_eq!(" Comment 2", all_comments[1].text.as_str());
+  let leading_comment_map = comments.leading_map();
+  assert_eq!(1, leading_comment_map.len());
+  let tailing_comment_map = comments.trailing_map();
+  assert_eq!(1, tailing_comment_map.len());
+}
+
+#[test]
 fn test_parse_wrong_media_type() {
   let code = "function add(a:number, b:number) { return a+b; }";
-  let expected_error = String::from("Expected ',', got ':' at file:///main.js:1:15\n")
+  let expected_message = String::from("Expected ',', got ':' at file:///main.js:1:15\n")
     + "\n"
     + "  function add(a:number, b:number) { return a+b; }\n"
     + "                ~";
@@ -130,8 +170,28 @@ fn test_parse_wrong_media_type() {
   };
   let output = core::parse(code.to_owned(), options);
   assert!(output.is_err());
-  let output_error = output.err().unwrap();
-  assert_eq!(expected_error, output_error);
+  let err = output.err().unwrap();
+  let output_message = err.to_string();
+  assert_eq!(expected_message, output_message);
+}
+
+#[test]
+fn test_transform_with_default_options() {
+  let code = "function add(a:number, b:number) { return a+b; }";
+  let expected_code = "function add(a:number,b:number){return a+b;}\n";
+  let expected_source_map_prefix = "//# sourceMappingURL=data:application/json;base64,";
+  let options = options::TransformOptions {
+    media_type: MediaType::TypeScript,
+    ..Default::default()
+  };
+  let output = core::transform(code.to_owned(), options);
+  assert!(output.is_ok());
+  let output = output.unwrap();
+  assert_eq!(MediaType::TypeScript, output.media_type);
+  assert!(matches!(output.parse_mode, ParseMode::Script));
+  let output_code = output.code;
+  assert_eq!(expected_code, &output_code[0..expected_code.len()]);
+  assert!(output_code[expected_code.len()..].starts_with(expected_source_map_prefix));
 }
 
 #[test]
@@ -147,7 +207,7 @@ fn test_transpile_jsx_with_custom_jsx_factory() {
   let expected_code = String::from("import React from 'react';\n")
     + "import './App.css';\n"
     + "function App() {\n"
-    + "  return /*#__PURE__*/ CustomJsxFactory.createElement(\"h1\", null, \" Hello World! \");\n"
+    + "  return CustomJsxFactory.createElement(\"h1\", null, \" Hello World! \");\n"
     + "}\n"
     + "export default App;\n";
   let expected_source_map_prefix = "//# sourceMappingURL=data:application/json;base64,";
@@ -159,8 +219,7 @@ fn test_transpile_jsx_with_custom_jsx_factory() {
   let output = core::transpile(code.to_owned(), options);
   assert!(output.is_ok());
   let output = output.unwrap();
-  assert!(output.module);
-  assert!(!output.script);
+  assert!(matches!(output.parse_output.parse_mode, ParseMode::Module));
   let output_code = output.code;
   assert_eq!(expected_code, &output_code[0..expected_code.len()]);
   assert!(output_code[expected_code.len()..].starts_with(expected_source_map_prefix));
@@ -179,7 +238,7 @@ fn test_transpile_jsx_with_default_options() {
   let expected_code = String::from("import React from 'react';\n")
     + "import './App.css';\n"
     + "function App() {\n"
-    + "  return /*#__PURE__*/ React.createElement(\"h1\", null, \" Hello World! \");\n"
+    + "  return React.createElement(\"h1\", null, \" Hello World! \");\n"
     + "}\n"
     + "export default App;\n";
   let expected_source_map_prefix = "//# sourceMappingURL=data:application/json;base64,";
@@ -190,9 +249,8 @@ fn test_transpile_jsx_with_default_options() {
   let output = core::transpile(code.to_owned(), options);
   assert!(output.is_ok());
   let output = output.unwrap();
-  assert!(output.module);
-  assert!(!output.script);
-  assert_eq!(MediaType::Jsx, output.media_type);
+  assert!(matches!(output.parse_output.parse_mode, ParseMode::Module));
+  assert_eq!(MediaType::Jsx, output.parse_output.media_type);
   let output_code = output.code;
   assert_eq!(expected_code, &output_code[0..expected_code.len()]);
   assert!(output_code[expected_code.len()..].starts_with(expected_source_map_prefix));
@@ -207,8 +265,7 @@ fn test_transpile_type_script_with_inline_source_map() {
   let output = core::transpile(code.to_owned(), options);
   assert!(output.is_ok());
   let output = output.unwrap();
-  assert!(output.module);
-  assert!(!output.script);
+  assert!(matches!(output.parse_output.parse_mode, ParseMode::Script));
   let output_code = output.code;
   assert_eq!(expected_code, &output_code[0..expected_code.len()]);
   assert!(output_code[expected_code.len()..].starts_with(expected_source_map_prefix));
@@ -218,50 +275,28 @@ fn test_transpile_type_script_with_inline_source_map() {
 fn test_transpile_type_script_without_inline_source_map() {
   let code = "function add(a:number, b:number) { return a+b; }";
   let expected_code = "function add(a, b) {\n  return a + b;\n}\n";
-  let expected_properties = vec![
-    "version",
-    "sources",
-    "sourcesContent",
-    "file:///main.ts",
-    "names",
-    "mappings",
-  ];
   vec![enums::ParseMode::Module, enums::ParseMode::Script]
     .iter()
     .for_each(|parse_mode| {
       let options = options::TranspileOptions {
-        inline_source_map: false,
         parse_mode: parse_mode.clone(),
-        source_map: true,
+        source_map: enums::SourceMapOption::None,
         specifier: "file:///main.ts".to_owned(),
         ..Default::default()
       };
       let output = core::transpile(code.to_owned(), options);
       assert!(output.is_ok());
       let output = output.unwrap();
-      match parse_mode {
-        enums::ParseMode::Script => {
-          assert!(!output.module);
-          assert!(output.script);
-        }
-        _ => {
-          assert!(output.module);
-          assert!(!output.script);
-        }
-      }
       let output_code = output.code;
       assert_eq!(expected_code, output_code);
-      let source_map = output.source_map.unwrap();
-      expected_properties
-        .iter()
-        .for_each(|p| assert!(source_map.contains(p), "{} is not found", p));
+      assert!(output.source_map.is_none());
     });
 }
 
 #[test]
 fn test_transpile_wrong_media_type() {
   let code = "function add(a:number, b:number) { return a+b; }";
-  let expected_error = String::from("Expected ',', got ':' at file:///main.js:1:15\n")
+  let expected_message = String::from("Expected ',', got ':' at file:///main.js:1:15\n")
     + "\n"
     + "  function add(a:number, b:number) { return a+b; }\n"
     + "                ~";
@@ -271,6 +306,7 @@ fn test_transpile_wrong_media_type() {
   };
   let output = core::transpile(code.to_owned(), options);
   assert!(output.is_err());
-  let output_error = output.err().unwrap();
-  assert_eq!(expected_error, output_error);
+  let err = output.err().unwrap();
+  let output_message = err.to_string();
+  assert_eq!(expected_message, output_message);
 }

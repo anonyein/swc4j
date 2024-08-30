@@ -28,7 +28,7 @@ import * as fs from "https://deno.land/std/fs/mod.ts"
 import * as path from "https://deno.land/std/path/mod.ts"
 
 const NAME = 'swc4j'
-const VERSION = '0.2.0'
+const VERSION = '1.0.0'
 const OS_CONFIG_MAP = {
   'windows': {
     sourceName: NAME,
@@ -36,6 +36,7 @@ const OS_CONFIG_MAP = {
     ext: '.dll',
     targets: {
       'x86_64': 'x86_64-pc-windows-msvc',
+      'arm64': 'aarch64-pc-windows-msvc',
     }
   },
   'linux': {

@@ -15,24 +15,1165 @@
 * limitations under the License.
 */
 
+use anyhow::Result;
 use jni::objects::{GlobalRef, JMethodID, JObject, JStaticMethodID};
-use jni::signature::ReturnType;
-use jni::sys::jvalue;
 use jni::JNIEnv;
 
-use deno_ast::swc::ast::AssignOp;
+pub use deno_ast::swc::ast::EsVersion;
+use deno_ast::swc::ast::*;
+pub use deno_ast::swc::common::comments::CommentKind;
 use deno_ast::swc::parser::token::{BinOpToken, Keyword, Token};
-pub use deno_ast::{ImportsNotUsedAsValues, MediaType};
+pub use deno_ast::{ImportsNotUsedAsValues, MediaType, SourceMapOption};
+use num_bigint::Sign;
 
-use crate::jni_utils;
+use crate::jni_utils::*;
 
 pub trait IdentifiableEnum<T> {
   fn get_id(&self) -> i32;
   fn parse_by_id(id: i32) -> T;
 }
 
-#[derive(Debug, Copy, Clone)]
-pub enum AstTokenType {
+macro_rules! declare_identifiable_enum {
+  ($struct_name:ident, $static_name:ident, $enum_name:ident, $package:literal, $java_class_name:literal) => {
+    pub struct $struct_name {
+      #[allow(dead_code)]
+      class: GlobalRef,
+      method_get_id: JMethodID,
+      method_parse: JStaticMethodID,
+    }
+    unsafe impl Send for $struct_name {}
+    unsafe impl Sync for $struct_name {}
+
+    impl $struct_name {
+      pub fn new<'local>(env: &mut JNIEnv<'local>) -> Self {
+        let class = env
+          .find_class(format!("com/caoccao/javet/swc4j/{}{}", $package, $java_class_name))
+          .expect(format!("Couldn't find class {}", $java_class_name).as_str());
+        let class = env
+          .new_global_ref(class)
+          .expect(format!("Couldn't globalize class {}", $java_class_name).as_str());
+        let method_get_id = env
+          .get_method_id(&class, "getId", "()I")
+          .expect(format!("Couldn't find method {}.getId", $java_class_name).as_str());
+        let method_parse = env
+          .get_static_method_id(
+            &class,
+            "parse",
+            format!("(I)Lcom/caoccao/javet/swc4j/{}{};", $package, $java_class_name),
+          )
+          .expect(format!("Couldn't find static method {}.parse", $java_class_name).as_str());
+        $struct_name {
+          class,
+          method_get_id,
+          method_parse,
+        }
+      }
+
+      pub fn parse<'local, 'a>(&self, env: &mut JNIEnv<'local>, id: i32) -> Result<JObject<'a>>
+      where
+        'local: 'a,
+      {
+        let id = int_to_jvalue!(id);
+        call_static_as_object!(env, &self.class, &self.method_parse, &[id], "parse()")
+      }
+    }
+
+    static mut $static_name: Option<$struct_name> = None;
+
+    impl<'local> FromJava<'local> for $enum_name {
+      fn from_java(env: &mut JNIEnv<'local>, obj: &JObject<'_>) -> Result<Box<$enum_name>> {
+        let id = call_as_int!(
+          env,
+          obj.as_ref(),
+          $static_name.as_ref().unwrap().method_get_id,
+          &[],
+          "getId()"
+        )?;
+        Ok(Box::new($enum_name::parse_by_id(id)))
+      }
+    }
+
+    impl ToJava for $enum_name {
+      fn to_java<'local, 'a>(&self, env: &mut JNIEnv<'local>) -> Result<JObject<'a>>
+      where
+        'local: 'a,
+      {
+        let id = self.get_id();
+        unsafe { $static_name.as_ref().unwrap() }.parse(env, id)
+      }
+    }
+  };
+}
+
+declare_identifiable_enum!(
+  JavaAccessibility,
+  JAVA_CLASS_ACCESSIBILITY,
+  Accessibility,
+  "ast/enums/",
+  "Swc4jAstAccessibility"
+);
+
+declare_identifiable_enum!(
+  JavaAssignOp,
+  JAVA_CLASS_ASSIGN_OP,
+  AssignOp,
+  "ast/enums/",
+  "Swc4jAstAssignOp"
+);
+
+declare_identifiable_enum!(JavaAstType, JAVA_CLASS_AST_TYPE, AstType, "ast/enums/", "Swc4jAstType");
+
+declare_identifiable_enum!(
+  JavaBigIntSign,
+  JAVA_CLASS_BIG_INT_SIGN,
+  Sign,
+  "ast/enums/",
+  "Swc4jAstBigIntSign"
+);
+
+declare_identifiable_enum!(
+  JavaBinaryOp,
+  JAVA_CLASS_BINARY_OP,
+  BinaryOp,
+  "ast/enums/",
+  "Swc4jAstBinaryOp"
+);
+
+declare_identifiable_enum!(
+  JavaCommentKind,
+  JAVA_CLASS_COMMENT_KIND,
+  CommentKind,
+  "comments/",
+  "Swc4jCommentKind"
+);
+
+declare_identifiable_enum!(
+  JavaEsVersion,
+  JAVA_CLASS_ES_VERSION,
+  EsVersion,
+  "enums/",
+  "Swc4jEsVersion"
+);
+
+declare_identifiable_enum!(
+  JavaImportPhase,
+  JAVA_CLASS_IMPORT_PHASE,
+  ImportPhase,
+  "ast/enums/",
+  "Swc4jAstImportPhase"
+);
+
+declare_identifiable_enum!(
+  JavaImportsNotUsedAsValues,
+  JAVA_CLASS_IMPORTS_NOT_USED_AS_VALUES,
+  ImportsNotUsedAsValues,
+  "enums/",
+  "Swc4jImportsNotUsedAsValues"
+);
+
+declare_identifiable_enum!(
+  JavaMediaType,
+  JAVA_CLASS_MEDIA_TYPE,
+  MediaType,
+  "enums/",
+  "Swc4jMediaType"
+);
+
+declare_identifiable_enum!(
+  JavaMetaPropKind,
+  JAVA_CLASS_META_PROP_KIND,
+  MetaPropKind,
+  "ast/enums/",
+  "Swc4jAstMetaPropKind"
+);
+
+declare_identifiable_enum!(
+  JavaMethodKind,
+  JAVA_CLASS_METHOD_KIND,
+  MethodKind,
+  "ast/enums/",
+  "Swc4jAstMethodKind"
+);
+
+declare_identifiable_enum!(
+  JavaParseMode,
+  JAVA_CLASS_PARSE_MODE,
+  ParseMode,
+  "enums/",
+  "Swc4jParseMode"
+);
+
+declare_identifiable_enum!(
+  JavaSourceMapOption,
+  JAVA_CLASS_SOURCE_MAP_OPTION,
+  SourceMapOption,
+  "enums/",
+  "Swc4jSourceMapOption"
+);
+
+declare_identifiable_enum!(
+  JavaTokenType,
+  JAVA_CLASS_TOKEN_TYPE,
+  TokenType,
+  "tokens/",
+  "Swc4jTokenType"
+);
+
+declare_identifiable_enum!(
+  JavaTruePlusMinus,
+  JAVA_CLASS_TRUE_PLUS_MINUS,
+  TruePlusMinus,
+  "ast/enums/",
+  "Swc4jAstTruePlusMinus"
+);
+
+declare_identifiable_enum!(
+  JavaTsKeywordTypeKind,
+  JAVA_CLASS_TS_KEYWORD_TYPE_KIND,
+  TsKeywordTypeKind,
+  "ast/enums/",
+  "Swc4jAstTsKeywordTypeKind"
+);
+
+declare_identifiable_enum!(
+  JavaTsTypeOperatorOp,
+  JAVA_CLASS_TS_TYPE_OPERATOR_OP,
+  TsTypeOperatorOp,
+  "ast/enums/",
+  "Swc4jAstTsTypeOperatorOp"
+);
+
+declare_identifiable_enum!(
+  JavaUnaryOp,
+  JAVA_CLASS_UNARY_OP,
+  UnaryOp,
+  "ast/enums/",
+  "Swc4jAstUnaryOp"
+);
+
+declare_identifiable_enum!(
+  JavaUpdateOp,
+  JAVA_CLASS_UPDATE_OP,
+  UpdateOp,
+  "ast/enums/",
+  "Swc4jAstUpdateOp"
+);
+
+declare_identifiable_enum!(
+  JavaVarDeclKind,
+  JAVA_CLASS_VAR_DECL_KIND,
+  VarDeclKind,
+  "ast/enums/",
+  "Swc4jAstVarDeclKind"
+);
+
+pub fn init<'local>(env: &mut JNIEnv<'local>) {
+  log::debug!("init()");
+  unsafe {
+    JAVA_CLASS_ACCESSIBILITY = Some(JavaAccessibility::new(env));
+    JAVA_CLASS_ASSIGN_OP = Some(JavaAssignOp::new(env));
+    JAVA_CLASS_AST_TYPE = Some(JavaAstType::new(env));
+    JAVA_CLASS_BIG_INT_SIGN = Some(JavaBigIntSign::new(env));
+    JAVA_CLASS_BINARY_OP = Some(JavaBinaryOp::new(env));
+    JAVA_CLASS_COMMENT_KIND = Some(JavaCommentKind::new(env));
+    JAVA_CLASS_ES_VERSION = Some(JavaEsVersion::new(env));
+    JAVA_CLASS_IMPORT_PHASE = Some(JavaImportPhase::new(env));
+    JAVA_CLASS_IMPORTS_NOT_USED_AS_VALUES = Some(JavaImportsNotUsedAsValues::new(env));
+    JAVA_CLASS_MEDIA_TYPE = Some(JavaMediaType::new(env));
+    JAVA_CLASS_META_PROP_KIND = Some(JavaMetaPropKind::new(env));
+    JAVA_CLASS_METHOD_KIND = Some(JavaMethodKind::new(env));
+    JAVA_CLASS_PARSE_MODE = Some(JavaParseMode::new(env));
+    JAVA_CLASS_SOURCE_MAP_OPTION = Some(JavaSourceMapOption::new(env));
+    JAVA_CLASS_TOKEN_TYPE = Some(JavaTokenType::new(env));
+    JAVA_CLASS_TRUE_PLUS_MINUS = Some(JavaTruePlusMinus::new(env));
+    JAVA_CLASS_TS_KEYWORD_TYPE_KIND = Some(JavaTsKeywordTypeKind::new(env));
+    JAVA_CLASS_TS_TYPE_OPERATOR_OP = Some(JavaTsTypeOperatorOp::new(env));
+    JAVA_CLASS_UNARY_OP = Some(JavaUnaryOp::new(env));
+    JAVA_CLASS_UPDATE_OP = Some(JavaUpdateOp::new(env));
+    JAVA_CLASS_VAR_DECL_KIND = Some(JavaVarDeclKind::new(env));
+  }
+}
+
+impl IdentifiableEnum<Accessibility> for Accessibility {
+  fn get_id(&self) -> i32 {
+    match self {
+      Accessibility::Public => 0,
+      Accessibility::Protected => 1,
+      Accessibility::Private => 2,
+    }
+  }
+  fn parse_by_id(id: i32) -> Accessibility {
+    match id {
+      0 => Accessibility::Public,
+      1 => Accessibility::Protected,
+      2 => Accessibility::Private,
+      _ => Accessibility::Public,
+    }
+  }
+}
+
+impl IdentifiableEnum<AssignOp> for AssignOp {
+  fn get_id(&self) -> i32 {
+    match self {
+      AssignOp::AddAssign => 0,
+      AssignOp::AndAssign => 1,
+      AssignOp::Assign => 2,
+      AssignOp::BitAndAssign => 3,
+      AssignOp::BitOrAssign => 4,
+      AssignOp::BitXorAssign => 5,
+      AssignOp::DivAssign => 6,
+      AssignOp::ExpAssign => 7,
+      AssignOp::LShiftAssign => 8,
+      AssignOp::ModAssign => 9,
+      AssignOp::MulAssign => 10,
+      AssignOp::NullishAssign => 11,
+      AssignOp::OrAssign => 12,
+      AssignOp::RShiftAssign => 13,
+      AssignOp::SubAssign => 14,
+      AssignOp::ZeroFillRShiftAssign => 15,
+    }
+  }
+  fn parse_by_id(id: i32) -> AssignOp {
+    match id {
+      0 => AssignOp::AddAssign,
+      1 => AssignOp::AndAssign,
+      2 => AssignOp::Assign,
+      3 => AssignOp::BitAndAssign,
+      4 => AssignOp::BitOrAssign,
+      5 => AssignOp::BitXorAssign,
+      6 => AssignOp::DivAssign,
+      7 => AssignOp::ExpAssign,
+      8 => AssignOp::LShiftAssign,
+      9 => AssignOp::ModAssign,
+      10 => AssignOp::MulAssign,
+      11 => AssignOp::NullishAssign,
+      12 => AssignOp::OrAssign,
+      13 => AssignOp::RShiftAssign,
+      14 => AssignOp::SubAssign,
+      15 => AssignOp::ZeroFillRShiftAssign,
+      _ => AssignOp::AddAssign,
+    }
+  }
+}
+
+#[derive(Debug)]
+pub enum AstType {
+  ArrayLit,
+  ArrayPat,
+  ArrowExpr,
+  AssignExpr,
+  AssignPat,
+  AssignPatProp,
+  AssignProp,
+  AutoAccessor,
+  AwaitExpr,
+  BigInt,
+  BindingIdent,
+  BinExpr,
+  BlockStmt,
+  Bool,
+  BreakStmt,
+  CallExpr,
+  CatchClause,
+  Class,
+  ClassDecl,
+  ClassExpr,
+  ClassMethod,
+  ClassProp,
+  ComputedPropName,
+  CondExpr,
+  Constructor,
+  ContinueStmt,
+  DebuggerStmt,
+  Decorator,
+  DoWhileStmt,
+  EmptyStmt,
+  ExportAll,
+  ExportDecl,
+  ExportDefaultDecl,
+  ExportDefaultExpr,
+  ExportDefaultSpecifier,
+  ExportNamedSpecifier,
+  ExportNamespaceSpecifier,
+  ExprOrSpread,
+  ExprStmt,
+  FnDecl,
+  FnExpr,
+  ForInStmt,
+  ForOfStmt,
+  ForStmt,
+  Function,
+  GetterProp,
+  Ident,
+  IdentName,
+  IfStmt,
+  Import,
+  ImportDecl,
+  ImportDefaultSpecifier,
+  ImportNamedSpecifier,
+  ImportStarAsSpecifier,
+  Invalid,
+  JsxAttr,
+  JsxClosingElement,
+  JsxClosingFragment,
+  JsxElement,
+  JsxEmptyExpr,
+  JsxExprContainer,
+  JsxFragment,
+  JsxMemberExpr,
+  JsxNamespacedName,
+  JsxOpeningElement,
+  JsxOpeningFragment,
+  JsxSpreadChild,
+  JsxText,
+  KeyValuePatProp,
+  KeyValueProp,
+  LabeledStmt,
+  MemberExpr,
+  MetaPropExpr,
+  MethodProp,
+  Module,
+  NamedExport,
+  NewExpr,
+  Null,
+  Number,
+  ObjectLit,
+  ObjectPat,
+  OptCall,
+  OptChainExpr,
+  Param,
+  ParenExpr,
+  PrivateMethod,
+  PrivateName,
+  PrivateProp,
+  Regex,
+  RestPat,
+  ReturnStmt,
+  Script,
+  SeqExpr,
+  SetterProp,
+  SpreadElement,
+  StaticBlock,
+  Str,
+  Super,
+  SuperPropExpr,
+  SwitchCase,
+  SwitchStmt,
+  TaggedTpl,
+  ThisExpr,
+  ThrowStmt,
+  Tpl,
+  TplElement,
+  TryStmt,
+  TsArrayType,
+  TsAsExpr,
+  TsCallSignatureDecl,
+  TsConditionalType,
+  TsConstAssertion,
+  TsConstructorType,
+  TsConstructSignatureDecl,
+  TsEnumDecl,
+  TsEnumMember,
+  TsExportAssignment,
+  TsExprWithTypeArgs,
+  TsExternalModuleRef,
+  TsFnType,
+  TsGetterSignature,
+  TsImportEqualsDecl,
+  TsImportType,
+  TsIndexedAccessType,
+  TsIndexSignature,
+  TsInferType,
+  TsInstantiation,
+  TsInterfaceBody,
+  TsInterfaceDecl,
+  TsIntersectionType,
+  TsKeywordType,
+  TsLitType,
+  TsMappedType,
+  TsMethodSignature,
+  TsModuleBlock,
+  TsModuleDecl,
+  TsNamespaceDecl,
+  TsNamespaceExportDecl,
+  TsNonNullExpr,
+  TsOptionalType,
+  TsParamProp,
+  TsParenthesizedType,
+  TsPropertySignature,
+  TsQualifiedName,
+  TsRestType,
+  TsSatisfiesExpr,
+  TsSetterSignature,
+  TsThisType,
+  TsTplLitType,
+  TsTupleElement,
+  TsTupleType,
+  TsTypeAliasDecl,
+  TsTypeAnn,
+  TsTypeAssertion,
+  TsTypeLit,
+  TsTypeOperator,
+  TsTypeParam,
+  TsTypeParamDecl,
+  TsTypeParamInstantiation,
+  TsTypePredicate,
+  TsTypeQuery,
+  TsTypeRef,
+  TsUnionType,
+  UnaryExpr,
+  UpdateExpr,
+  UsingDecl,
+  VarDecl,
+  VarDeclarator,
+  WhileStmt,
+  WithStmt,
+  YieldExpr,
+}
+
+impl IdentifiableEnum<AstType> for AstType {
+  fn get_id(&self) -> i32 {
+    match self {
+      AstType::ArrayLit => 0,
+      AstType::ArrayPat => 1,
+      AstType::ArrowExpr => 2,
+      AstType::AssignExpr => 3,
+      AstType::AssignPat => 4,
+      AstType::AssignPatProp => 5,
+      AstType::AssignProp => 6,
+      AstType::AutoAccessor => 7,
+      AstType::AwaitExpr => 8,
+      AstType::BigInt => 9,
+      AstType::BindingIdent => 10,
+      AstType::BinExpr => 11,
+      AstType::BlockStmt => 12,
+      AstType::Bool => 13,
+      AstType::BreakStmt => 14,
+      AstType::CallExpr => 15,
+      AstType::CatchClause => 16,
+      AstType::Class => 17,
+      AstType::ClassDecl => 18,
+      AstType::ClassExpr => 19,
+      AstType::ClassMethod => 20,
+      AstType::ClassProp => 21,
+      AstType::ComputedPropName => 22,
+      AstType::CondExpr => 23,
+      AstType::Constructor => 24,
+      AstType::ContinueStmt => 25,
+      AstType::DebuggerStmt => 26,
+      AstType::Decorator => 27,
+      AstType::DoWhileStmt => 28,
+      AstType::EmptyStmt => 29,
+      AstType::ExportAll => 30,
+      AstType::ExportDecl => 31,
+      AstType::ExportDefaultDecl => 32,
+      AstType::ExportDefaultExpr => 33,
+      AstType::ExportDefaultSpecifier => 34,
+      AstType::ExportNamedSpecifier => 35,
+      AstType::ExportNamespaceSpecifier => 36,
+      AstType::ExprOrSpread => 37,
+      AstType::ExprStmt => 38,
+      AstType::FnDecl => 39,
+      AstType::FnExpr => 40,
+      AstType::ForInStmt => 41,
+      AstType::ForOfStmt => 42,
+      AstType::ForStmt => 43,
+      AstType::Function => 44,
+      AstType::GetterProp => 45,
+      AstType::Ident => 46,
+      AstType::IdentName => 47,
+      AstType::IfStmt => 48,
+      AstType::Import => 49,
+      AstType::ImportDecl => 50,
+      AstType::ImportDefaultSpecifier => 51,
+      AstType::ImportNamedSpecifier => 52,
+      AstType::ImportStarAsSpecifier => 53,
+      AstType::Invalid => 54,
+      AstType::JsxAttr => 55,
+      AstType::JsxClosingElement => 56,
+      AstType::JsxClosingFragment => 57,
+      AstType::JsxElement => 58,
+      AstType::JsxEmptyExpr => 59,
+      AstType::JsxExprContainer => 60,
+      AstType::JsxFragment => 61,
+      AstType::JsxMemberExpr => 62,
+      AstType::JsxNamespacedName => 63,
+      AstType::JsxOpeningElement => 64,
+      AstType::JsxOpeningFragment => 65,
+      AstType::JsxSpreadChild => 66,
+      AstType::JsxText => 67,
+      AstType::KeyValuePatProp => 68,
+      AstType::KeyValueProp => 69,
+      AstType::LabeledStmt => 70,
+      AstType::MemberExpr => 71,
+      AstType::MetaPropExpr => 72,
+      AstType::MethodProp => 73,
+      AstType::Module => 74,
+      AstType::NamedExport => 75,
+      AstType::NewExpr => 76,
+      AstType::Null => 77,
+      AstType::Number => 78,
+      AstType::ObjectLit => 79,
+      AstType::ObjectPat => 80,
+      AstType::OptCall => 81,
+      AstType::OptChainExpr => 82,
+      AstType::Param => 83,
+      AstType::ParenExpr => 84,
+      AstType::PrivateMethod => 85,
+      AstType::PrivateName => 86,
+      AstType::PrivateProp => 87,
+      AstType::Regex => 88,
+      AstType::RestPat => 89,
+      AstType::ReturnStmt => 90,
+      AstType::Script => 91,
+      AstType::SeqExpr => 92,
+      AstType::SetterProp => 93,
+      AstType::SpreadElement => 94,
+      AstType::StaticBlock => 95,
+      AstType::Str => 96,
+      AstType::Super => 97,
+      AstType::SuperPropExpr => 98,
+      AstType::SwitchCase => 99,
+      AstType::SwitchStmt => 100,
+      AstType::TaggedTpl => 101,
+      AstType::ThisExpr => 102,
+      AstType::ThrowStmt => 103,
+      AstType::Tpl => 104,
+      AstType::TplElement => 105,
+      AstType::TryStmt => 106,
+      AstType::TsArrayType => 107,
+      AstType::TsAsExpr => 108,
+      AstType::TsCallSignatureDecl => 109,
+      AstType::TsConditionalType => 110,
+      AstType::TsConstAssertion => 111,
+      AstType::TsConstructorType => 112,
+      AstType::TsConstructSignatureDecl => 113,
+      AstType::TsEnumDecl => 114,
+      AstType::TsEnumMember => 115,
+      AstType::TsExportAssignment => 116,
+      AstType::TsExprWithTypeArgs => 117,
+      AstType::TsExternalModuleRef => 118,
+      AstType::TsFnType => 119,
+      AstType::TsGetterSignature => 120,
+      AstType::TsImportEqualsDecl => 121,
+      AstType::TsImportType => 122,
+      AstType::TsIndexedAccessType => 123,
+      AstType::TsIndexSignature => 124,
+      AstType::TsInferType => 125,
+      AstType::TsInstantiation => 126,
+      AstType::TsInterfaceBody => 127,
+      AstType::TsInterfaceDecl => 128,
+      AstType::TsIntersectionType => 129,
+      AstType::TsKeywordType => 130,
+      AstType::TsLitType => 131,
+      AstType::TsMappedType => 132,
+      AstType::TsMethodSignature => 133,
+      AstType::TsModuleBlock => 134,
+      AstType::TsModuleDecl => 135,
+      AstType::TsNamespaceDecl => 136,
+      AstType::TsNamespaceExportDecl => 137,
+      AstType::TsNonNullExpr => 138,
+      AstType::TsOptionalType => 139,
+      AstType::TsParamProp => 140,
+      AstType::TsParenthesizedType => 141,
+      AstType::TsPropertySignature => 142,
+      AstType::TsQualifiedName => 143,
+      AstType::TsRestType => 144,
+      AstType::TsSatisfiesExpr => 145,
+      AstType::TsSetterSignature => 146,
+      AstType::TsThisType => 147,
+      AstType::TsTplLitType => 148,
+      AstType::TsTupleElement => 149,
+      AstType::TsTupleType => 150,
+      AstType::TsTypeAliasDecl => 151,
+      AstType::TsTypeAnn => 152,
+      AstType::TsTypeAssertion => 153,
+      AstType::TsTypeLit => 154,
+      AstType::TsTypeOperator => 155,
+      AstType::TsTypeParam => 156,
+      AstType::TsTypeParamDecl => 157,
+      AstType::TsTypeParamInstantiation => 158,
+      AstType::TsTypePredicate => 159,
+      AstType::TsTypeQuery => 160,
+      AstType::TsTypeRef => 161,
+      AstType::TsUnionType => 162,
+      AstType::UnaryExpr => 163,
+      AstType::UpdateExpr => 164,
+      AstType::UsingDecl => 165,
+      AstType::VarDecl => 166,
+      AstType::VarDeclarator => 167,
+      AstType::WhileStmt => 168,
+      AstType::WithStmt => 169,
+      AstType::YieldExpr => 170,
+    }
+  }
+  fn parse_by_id(id: i32) -> AstType {
+    match id {
+      0 => AstType::ArrayLit,
+      1 => AstType::ArrayPat,
+      2 => AstType::ArrowExpr,
+      3 => AstType::AssignExpr,
+      4 => AstType::AssignPat,
+      5 => AstType::AssignPatProp,
+      6 => AstType::AssignProp,
+      7 => AstType::AutoAccessor,
+      8 => AstType::AwaitExpr,
+      9 => AstType::BigInt,
+      10 => AstType::BindingIdent,
+      11 => AstType::BinExpr,
+      12 => AstType::BlockStmt,
+      13 => AstType::Bool,
+      14 => AstType::BreakStmt,
+      15 => AstType::CallExpr,
+      16 => AstType::CatchClause,
+      17 => AstType::Class,
+      18 => AstType::ClassDecl,
+      19 => AstType::ClassExpr,
+      20 => AstType::ClassMethod,
+      21 => AstType::ClassProp,
+      22 => AstType::ComputedPropName,
+      23 => AstType::CondExpr,
+      24 => AstType::Constructor,
+      25 => AstType::ContinueStmt,
+      26 => AstType::DebuggerStmt,
+      27 => AstType::Decorator,
+      28 => AstType::DoWhileStmt,
+      29 => AstType::EmptyStmt,
+      30 => AstType::ExportAll,
+      31 => AstType::ExportDecl,
+      32 => AstType::ExportDefaultDecl,
+      33 => AstType::ExportDefaultExpr,
+      34 => AstType::ExportDefaultSpecifier,
+      35 => AstType::ExportNamedSpecifier,
+      36 => AstType::ExportNamespaceSpecifier,
+      37 => AstType::ExprOrSpread,
+      38 => AstType::ExprStmt,
+      39 => AstType::FnDecl,
+      40 => AstType::FnExpr,
+      41 => AstType::ForInStmt,
+      42 => AstType::ForOfStmt,
+      43 => AstType::ForStmt,
+      44 => AstType::Function,
+      45 => AstType::GetterProp,
+      46 => AstType::Ident,
+      47 => AstType::IdentName,
+      48 => AstType::IfStmt,
+      49 => AstType::Import,
+      50 => AstType::ImportDecl,
+      51 => AstType::ImportDefaultSpecifier,
+      52 => AstType::ImportNamedSpecifier,
+      53 => AstType::ImportStarAsSpecifier,
+      54 => AstType::Invalid,
+      55 => AstType::JsxAttr,
+      56 => AstType::JsxClosingElement,
+      57 => AstType::JsxClosingFragment,
+      58 => AstType::JsxElement,
+      59 => AstType::JsxEmptyExpr,
+      60 => AstType::JsxExprContainer,
+      61 => AstType::JsxFragment,
+      62 => AstType::JsxMemberExpr,
+      63 => AstType::JsxNamespacedName,
+      64 => AstType::JsxOpeningElement,
+      65 => AstType::JsxOpeningFragment,
+      66 => AstType::JsxSpreadChild,
+      67 => AstType::JsxText,
+      68 => AstType::KeyValuePatProp,
+      69 => AstType::KeyValueProp,
+      70 => AstType::LabeledStmt,
+      71 => AstType::MemberExpr,
+      72 => AstType::MetaPropExpr,
+      73 => AstType::MethodProp,
+      74 => AstType::Module,
+      75 => AstType::NamedExport,
+      76 => AstType::NewExpr,
+      77 => AstType::Null,
+      78 => AstType::Number,
+      79 => AstType::ObjectLit,
+      80 => AstType::ObjectPat,
+      81 => AstType::OptCall,
+      82 => AstType::OptChainExpr,
+      83 => AstType::Param,
+      84 => AstType::ParenExpr,
+      85 => AstType::PrivateMethod,
+      86 => AstType::PrivateName,
+      87 => AstType::PrivateProp,
+      88 => AstType::Regex,
+      89 => AstType::RestPat,
+      90 => AstType::ReturnStmt,
+      91 => AstType::Script,
+      92 => AstType::SeqExpr,
+      93 => AstType::SetterProp,
+      94 => AstType::SpreadElement,
+      95 => AstType::StaticBlock,
+      96 => AstType::Str,
+      97 => AstType::Super,
+      98 => AstType::SuperPropExpr,
+      99 => AstType::SwitchCase,
+      100 => AstType::SwitchStmt,
+      101 => AstType::TaggedTpl,
+      102 => AstType::ThisExpr,
+      103 => AstType::ThrowStmt,
+      104 => AstType::Tpl,
+      105 => AstType::TplElement,
+      106 => AstType::TryStmt,
+      107 => AstType::TsArrayType,
+      108 => AstType::TsAsExpr,
+      109 => AstType::TsCallSignatureDecl,
+      110 => AstType::TsConditionalType,
+      111 => AstType::TsConstAssertion,
+      112 => AstType::TsConstructorType,
+      113 => AstType::TsConstructSignatureDecl,
+      114 => AstType::TsEnumDecl,
+      115 => AstType::TsEnumMember,
+      116 => AstType::TsExportAssignment,
+      117 => AstType::TsExprWithTypeArgs,
+      118 => AstType::TsExternalModuleRef,
+      119 => AstType::TsFnType,
+      120 => AstType::TsGetterSignature,
+      121 => AstType::TsImportEqualsDecl,
+      122 => AstType::TsImportType,
+      123 => AstType::TsIndexedAccessType,
+      124 => AstType::TsIndexSignature,
+      125 => AstType::TsInferType,
+      126 => AstType::TsInstantiation,
+      127 => AstType::TsInterfaceBody,
+      128 => AstType::TsInterfaceDecl,
+      129 => AstType::TsIntersectionType,
+      130 => AstType::TsKeywordType,
+      131 => AstType::TsLitType,
+      132 => AstType::TsMappedType,
+      133 => AstType::TsMethodSignature,
+      134 => AstType::TsModuleBlock,
+      135 => AstType::TsModuleDecl,
+      136 => AstType::TsNamespaceDecl,
+      137 => AstType::TsNamespaceExportDecl,
+      138 => AstType::TsNonNullExpr,
+      139 => AstType::TsOptionalType,
+      140 => AstType::TsParamProp,
+      141 => AstType::TsParenthesizedType,
+      142 => AstType::TsPropertySignature,
+      143 => AstType::TsQualifiedName,
+      144 => AstType::TsRestType,
+      145 => AstType::TsSatisfiesExpr,
+      146 => AstType::TsSetterSignature,
+      147 => AstType::TsThisType,
+      148 => AstType::TsTplLitType,
+      149 => AstType::TsTupleElement,
+      150 => AstType::TsTupleType,
+      151 => AstType::TsTypeAliasDecl,
+      152 => AstType::TsTypeAnn,
+      153 => AstType::TsTypeAssertion,
+      154 => AstType::TsTypeLit,
+      155 => AstType::TsTypeOperator,
+      156 => AstType::TsTypeParam,
+      157 => AstType::TsTypeParamDecl,
+      158 => AstType::TsTypeParamInstantiation,
+      159 => AstType::TsTypePredicate,
+      160 => AstType::TsTypeQuery,
+      161 => AstType::TsTypeRef,
+      162 => AstType::TsUnionType,
+      163 => AstType::UnaryExpr,
+      164 => AstType::UpdateExpr,
+      165 => AstType::UsingDecl,
+      166 => AstType::VarDecl,
+      167 => AstType::VarDeclarator,
+      168 => AstType::WhileStmt,
+      169 => AstType::WithStmt,
+      170 => AstType::YieldExpr,
+      _ => AstType::Invalid,
+    }
+  }
+}
+
+impl IdentifiableEnum<BinaryOp> for BinaryOp {
+  fn get_id(&self) -> i32 {
+    match self {
+      BinaryOp::Add => 0,
+      BinaryOp::BitAnd => 1,
+      BinaryOp::BitOr => 2,
+      BinaryOp::BitXor => 3,
+      BinaryOp::Div => 4,
+      BinaryOp::EqEq => 5,
+      BinaryOp::EqEqEq => 6,
+      BinaryOp::Exp => 7,
+      BinaryOp::Gt => 8,
+      BinaryOp::GtEq => 9,
+      BinaryOp::In => 10,
+      BinaryOp::InstanceOf => 11,
+      BinaryOp::LogicalAnd => 12,
+      BinaryOp::LogicalOr => 13,
+      BinaryOp::LShift => 14,
+      BinaryOp::Lt => 15,
+      BinaryOp::LtEq => 16,
+      BinaryOp::Mod => 17,
+      BinaryOp::Mul => 18,
+      BinaryOp::NotEq => 19,
+      BinaryOp::NotEqEq => 20,
+      BinaryOp::NullishCoalescing => 21,
+      BinaryOp::RShift => 22,
+      BinaryOp::Sub => 23,
+      BinaryOp::ZeroFillRShift => 24,
+    }
+  }
+  fn parse_by_id(id: i32) -> BinaryOp {
+    match id {
+      0 => BinaryOp::Add,
+      1 => BinaryOp::BitAnd,
+      2 => BinaryOp::BitOr,
+      3 => BinaryOp::BitXor,
+      4 => BinaryOp::Div,
+      5 => BinaryOp::EqEq,
+      6 => BinaryOp::EqEqEq,
+      7 => BinaryOp::Exp,
+      8 => BinaryOp::Gt,
+      9 => BinaryOp::GtEq,
+      10 => BinaryOp::In,
+      11 => BinaryOp::InstanceOf,
+      12 => BinaryOp::LogicalAnd,
+      13 => BinaryOp::LogicalOr,
+      14 => BinaryOp::LShift,
+      15 => BinaryOp::Lt,
+      16 => BinaryOp::LtEq,
+      17 => BinaryOp::Mod,
+      18 => BinaryOp::Mul,
+      19 => BinaryOp::NotEq,
+      20 => BinaryOp::NotEqEq,
+      21 => BinaryOp::NullishCoalescing,
+      22 => BinaryOp::RShift,
+      23 => BinaryOp::Sub,
+      24 => BinaryOp::ZeroFillRShift,
+      _ => BinaryOp::Add,
+    }
+  }
+}
+
+impl IdentifiableEnum<CommentKind> for CommentKind {
+  fn get_id(&self) -> i32 {
+    match self {
+      CommentKind::Line => 0,
+      CommentKind::Block => 1,
+    }
+  }
+  fn parse_by_id(id: i32) -> CommentKind {
+    match id {
+      0 => CommentKind::Line,
+      1 => CommentKind::Block,
+      _ => CommentKind::Line,
+    }
+  }
+}
+
+impl IdentifiableEnum<EsVersion> for EsVersion {
+  fn get_id(&self) -> i32 {
+    match self {
+      EsVersion::Es3 => 1,
+      EsVersion::Es5 => 2,
+      EsVersion::Es2015 => 3,
+      EsVersion::Es2016 => 4,
+      EsVersion::Es2017 => 5,
+      EsVersion::Es2018 => 6,
+      EsVersion::Es2019 => 7,
+      EsVersion::Es2020 => 8,
+      EsVersion::Es2021 => 9,
+      EsVersion::Es2022 => 10,
+      EsVersion::EsNext => 0,
+    }
+  }
+  fn parse_by_id(id: i32) -> EsVersion {
+    match id {
+      1 => EsVersion::Es3,
+      2 => EsVersion::Es5,
+      3 => EsVersion::Es2015,
+      4 => EsVersion::Es2016,
+      5 => EsVersion::Es2017,
+      6 => EsVersion::Es2018,
+      7 => EsVersion::Es2019,
+      8 => EsVersion::Es2020,
+      9 => EsVersion::Es2021,
+      10 => EsVersion::Es2022,
+      0 => EsVersion::EsNext,
+      _ => EsVersion::EsNext,
+    }
+  }
+}
+
+impl IdentifiableEnum<ImportPhase> for ImportPhase {
+  fn get_id(&self) -> i32 {
+    match self {
+      ImportPhase::Defer => 0,
+      ImportPhase::Evaluation => 1,
+      ImportPhase::Source => 2,
+    }
+  }
+  fn parse_by_id(id: i32) -> ImportPhase {
+    match id {
+      1 => ImportPhase::Evaluation,
+      2 => ImportPhase::Source,
+      _ => ImportPhase::Defer,
+    }
+  }
+}
+
+impl IdentifiableEnum<ImportsNotUsedAsValues> for ImportsNotUsedAsValues {
+  fn get_id(&self) -> i32 {
+    match self {
+      ImportsNotUsedAsValues::Remove => 0,
+      ImportsNotUsedAsValues::Preserve => 1,
+      ImportsNotUsedAsValues::Error => 2,
+    }
+  }
+  fn parse_by_id(id: i32) -> ImportsNotUsedAsValues {
+    match id {
+      0 => ImportsNotUsedAsValues::Remove,
+      1 => ImportsNotUsedAsValues::Preserve,
+      _ => ImportsNotUsedAsValues::Error,
+    }
+  }
+}
+
+impl IdentifiableEnum<MetaPropKind> for MetaPropKind {
+  fn get_id(&self) -> i32 {
+    match self {
+      MetaPropKind::NewTarget => 0,
+      MetaPropKind::ImportMeta => 1,
+    }
+  }
+  fn parse_by_id(id: i32) -> MetaPropKind {
+    match id {
+      0 => MetaPropKind::NewTarget,
+      1 => MetaPropKind::ImportMeta,
+      _ => MetaPropKind::NewTarget,
+    }
+  }
+}
+
+impl IdentifiableEnum<MediaType> for MediaType {
+  fn get_id(&self) -> i32 {
+    match self {
+      MediaType::JavaScript => 0,
+      MediaType::Jsx => 1,
+      MediaType::Mjs => 2,
+      MediaType::Cjs => 3,
+      MediaType::TypeScript => 4,
+      MediaType::Mts => 5,
+      MediaType::Cts => 6,
+      MediaType::Dts => 7,
+      MediaType::Dmts => 8,
+      MediaType::Dcts => 9,
+      MediaType::Tsx => 10,
+      MediaType::Json => 11,
+      MediaType::Wasm => 12,
+      MediaType::TsBuildInfo => 13,
+      MediaType::SourceMap => 14,
+      MediaType::Unknown => 15,
+    }
+  }
+  fn parse_by_id(id: i32) -> MediaType {
+    match id {
+      0 => MediaType::JavaScript,
+      1 => MediaType::Jsx,
+      2 => MediaType::Mjs,
+      3 => MediaType::Cjs,
+      4 => MediaType::TypeScript,
+      5 => MediaType::Mts,
+      6 => MediaType::Cts,
+      7 => MediaType::Dts,
+      8 => MediaType::Dmts,
+      9 => MediaType::Dcts,
+      10 => MediaType::Tsx,
+      11 => MediaType::Json,
+      12 => MediaType::Wasm,
+      13 => MediaType::TsBuildInfo,
+      14 => MediaType::SourceMap,
+      15 => MediaType::Unknown,
+      _ => MediaType::Unknown,
+    }
+  }
+}
+
+impl IdentifiableEnum<MethodKind> for MethodKind {
+  fn get_id(&self) -> i32 {
+    match self {
+      MethodKind::Method => 0,
+      MethodKind::Getter => 1,
+      MethodKind::Setter => 2,
+    }
+  }
+  fn parse_by_id(id: i32) -> MethodKind {
+    match id {
+      0 => MethodKind::Method,
+      1 => MethodKind::Getter,
+      2 => MethodKind::Setter,
+      _ => MethodKind::Method,
+    }
+  }
+}
+
+#[derive(Default, Debug, Copy, Clone)]
+pub enum ParseMode {
+  #[default]
+  Program,
+  Module,
+  Script,
+}
+
+impl IdentifiableEnum<ParseMode> for ParseMode {
+  fn get_id(&self) -> i32 {
+    match self {
+      ParseMode::Program => 0,
+      ParseMode::Module => 1,
+      ParseMode::Script => 2,
+    }
+  }
+  fn parse_by_id(id: i32) -> ParseMode {
+    match id {
+      0 => ParseMode::Program,
+      1 => ParseMode::Module,
+      2 => ParseMode::Script,
+      _ => ParseMode::Program,
+    }
+  }
+}
+
+impl IdentifiableEnum<Sign> for Sign {
+  fn get_id(&self) -> i32 {
+    match self {
+      Sign::NoSign => 0,
+      Sign::Minus => 1,
+      Sign::Plus => 2,
+    }
+  }
+  fn parse_by_id(id: i32) -> Sign {
+    match id {
+      0 => Sign::NoSign,
+      1 => Sign::Minus,
+      2 => Sign::Plus,
+      _ => Sign::NoSign,
+    }
+  }
+}
+
+impl IdentifiableEnum<SourceMapOption> for SourceMapOption {
+  fn get_id(&self) -> i32 {
+    match self {
+      SourceMapOption::Inline => 0,
+      SourceMapOption::Separate => 1,
+      SourceMapOption::None => 2,
+    }
+  }
+  fn parse_by_id(id: i32) -> SourceMapOption {
+    match id {
+      0 => SourceMapOption::Inline,
+      1 => SourceMapOption::Separate,
+      2 => SourceMapOption::None,
+      _ => SourceMapOption::Inline,
+    }
+  }
+}
+
+#[derive(Default, Debug, Copy, Clone)]
+pub enum TokenType {
+  #[default]
   Unknown, // 0
   // Keyword
   Await,      // 1
@@ -139,15 +1280,14 @@ pub enum AstTokenType {
   AndAssign,            // 98
   OrAssign,             // 99
   NullishAssign,        // 100
-  // Atom - Uni
-  Shebang, // 101
-  Error,   // 102
-  // Atom - Bi
+  // TextValue
+  Shebang,  // 101
+  Error,    // 102
   Str,      // 103
   Num,      // 104
   BigInt,   // 105
   Template, // 106
-  // Atom - Tri
+  // TextValueFlags
   Regex, // 107
   // Jsx
   JSXTagStart, // 108
@@ -156,608 +1296,491 @@ pub enum AstTokenType {
   JSXTagText,  // 111
 }
 
-impl IdentifiableEnum<AstTokenType> for AstTokenType {
+impl IdentifiableEnum<TokenType> for TokenType {
   fn get_id(&self) -> i32 {
     match self {
-      AstTokenType::Await => 1,
-      AstTokenType::Break => 2,
-      AstTokenType::Case => 3,
-      AstTokenType::Catch => 4,
-      AstTokenType::Class => 5,
-      AstTokenType::Const => 6,
-      AstTokenType::Continue => 7,
-      AstTokenType::Debugger => 8,
-      AstTokenType::Default_ => 9,
-      AstTokenType::Delete => 10,
-      AstTokenType::Do => 11,
-      AstTokenType::Else => 12,
-      AstTokenType::Export => 13,
-      AstTokenType::Extends => 14,
-      AstTokenType::Finally => 15,
-      AstTokenType::For => 16,
-      AstTokenType::Function => 17,
-      AstTokenType::If => 18,
-      AstTokenType::Import => 19,
-      AstTokenType::In => 20,
-      AstTokenType::InstanceOf => 21,
-      AstTokenType::Let => 22,
-      AstTokenType::New => 23,
-      AstTokenType::Return => 24,
-      AstTokenType::Super => 25,
-      AstTokenType::Switch => 26,
-      AstTokenType::This => 27,
-      AstTokenType::Throw => 28,
-      AstTokenType::Try => 29,
-      AstTokenType::TypeOf => 30,
-      AstTokenType::Var => 31,
-      AstTokenType::Void => 32,
-      AstTokenType::While => 33,
-      AstTokenType::With => 34,
-      AstTokenType::Yield => 35,
-      AstTokenType::Null => 36,
-      AstTokenType::True => 37,
-      AstTokenType::False => 38,
-      AstTokenType::IdentKnown => 39,
-      AstTokenType::IdentOther => 40,
-      AstTokenType::Arrow => 41,
-      AstTokenType::Hash => 42,
-      AstTokenType::At => 43,
-      AstTokenType::Dot => 44,
-      AstTokenType::DotDotDot => 45,
-      AstTokenType::Bang => 46,
-      AstTokenType::LParen => 47,
-      AstTokenType::RParen => 48,
-      AstTokenType::LBracket => 49,
-      AstTokenType::RBracket => 50,
-      AstTokenType::LBrace => 51,
-      AstTokenType::RBrace => 52,
-      AstTokenType::Semi => 53,
-      AstTokenType::Comma => 54,
-      AstTokenType::BackQuote => 55,
-      AstTokenType::Colon => 56,
-      AstTokenType::DollarLBrace => 57,
-      AstTokenType::QuestionMark => 58,
-      AstTokenType::PlusPlus => 59,
-      AstTokenType::MinusMinus => 60,
-      AstTokenType::Tilde => 61,
-      AstTokenType::EqEq => 62,
-      AstTokenType::NotEq => 63,
-      AstTokenType::EqEqEq => 64,
-      AstTokenType::NotEqEq => 65,
-      AstTokenType::Lt => 66,
-      AstTokenType::LtEq => 67,
-      AstTokenType::Gt => 68,
-      AstTokenType::GtEq => 69,
-      AstTokenType::LShift => 70,
-      AstTokenType::RShift => 71,
-      AstTokenType::ZeroFillRShift => 72,
-      AstTokenType::Add => 73,
-      AstTokenType::Sub => 74,
-      AstTokenType::Mul => 75,
-      AstTokenType::Div => 76,
-      AstTokenType::Mod => 77,
-      AstTokenType::BitOr => 78,
-      AstTokenType::BitXor => 79,
-      AstTokenType::BitAnd => 80,
-      AstTokenType::Exp => 81,
-      AstTokenType::LogicalOr => 82,
-      AstTokenType::LogicalAnd => 83,
-      AstTokenType::NullishCoalescing => 84,
-      AstTokenType::Assign => 85,
-      AstTokenType::AddAssign => 86,
-      AstTokenType::SubAssign => 87,
-      AstTokenType::MulAssign => 88,
-      AstTokenType::DivAssign => 89,
-      AstTokenType::ModAssign => 90,
-      AstTokenType::LShiftAssign => 91,
-      AstTokenType::RShiftAssign => 92,
-      AstTokenType::ZeroFillRShiftAssign => 93,
-      AstTokenType::BitOrAssign => 94,
-      AstTokenType::BitXorAssign => 95,
-      AstTokenType::BitAndAssign => 96,
-      AstTokenType::ExpAssign => 97,
-      AstTokenType::AndAssign => 98,
-      AstTokenType::OrAssign => 99,
-      AstTokenType::NullishAssign => 100,
-      AstTokenType::Shebang => 101,
-      AstTokenType::Error => 102,
-      AstTokenType::Str => 103,
-      AstTokenType::Num => 104,
-      AstTokenType::BigInt => 105,
-      AstTokenType::Template => 106,
-      AstTokenType::Regex => 107,
-      AstTokenType::JSXTagStart => 108,
-      AstTokenType::JSXTagEnd => 109,
-      AstTokenType::JSXTagName => 110,
-      AstTokenType::JSXTagText => 111,
-      _ => 0,
+      TokenType::Unknown => 0,
+      TokenType::Await => 1,
+      TokenType::Break => 2,
+      TokenType::Case => 3,
+      TokenType::Catch => 4,
+      TokenType::Class => 5,
+      TokenType::Const => 6,
+      TokenType::Continue => 7,
+      TokenType::Debugger => 8,
+      TokenType::Default_ => 9,
+      TokenType::Delete => 10,
+      TokenType::Do => 11,
+      TokenType::Else => 12,
+      TokenType::Export => 13,
+      TokenType::Extends => 14,
+      TokenType::Finally => 15,
+      TokenType::For => 16,
+      TokenType::Function => 17,
+      TokenType::If => 18,
+      TokenType::Import => 19,
+      TokenType::In => 20,
+      TokenType::InstanceOf => 21,
+      TokenType::Let => 22,
+      TokenType::New => 23,
+      TokenType::Return => 24,
+      TokenType::Super => 25,
+      TokenType::Switch => 26,
+      TokenType::This => 27,
+      TokenType::Throw => 28,
+      TokenType::Try => 29,
+      TokenType::TypeOf => 30,
+      TokenType::Var => 31,
+      TokenType::Void => 32,
+      TokenType::While => 33,
+      TokenType::With => 34,
+      TokenType::Yield => 35,
+      TokenType::Null => 36,
+      TokenType::True => 37,
+      TokenType::False => 38,
+      TokenType::IdentKnown => 39,
+      TokenType::IdentOther => 40,
+      TokenType::Arrow => 41,
+      TokenType::Hash => 42,
+      TokenType::At => 43,
+      TokenType::Dot => 44,
+      TokenType::DotDotDot => 45,
+      TokenType::Bang => 46,
+      TokenType::LParen => 47,
+      TokenType::RParen => 48,
+      TokenType::LBracket => 49,
+      TokenType::RBracket => 50,
+      TokenType::LBrace => 51,
+      TokenType::RBrace => 52,
+      TokenType::Semi => 53,
+      TokenType::Comma => 54,
+      TokenType::BackQuote => 55,
+      TokenType::Colon => 56,
+      TokenType::DollarLBrace => 57,
+      TokenType::QuestionMark => 58,
+      TokenType::PlusPlus => 59,
+      TokenType::MinusMinus => 60,
+      TokenType::Tilde => 61,
+      TokenType::EqEq => 62,
+      TokenType::NotEq => 63,
+      TokenType::EqEqEq => 64,
+      TokenType::NotEqEq => 65,
+      TokenType::Lt => 66,
+      TokenType::LtEq => 67,
+      TokenType::Gt => 68,
+      TokenType::GtEq => 69,
+      TokenType::LShift => 70,
+      TokenType::RShift => 71,
+      TokenType::ZeroFillRShift => 72,
+      TokenType::Add => 73,
+      TokenType::Sub => 74,
+      TokenType::Mul => 75,
+      TokenType::Div => 76,
+      TokenType::Mod => 77,
+      TokenType::BitOr => 78,
+      TokenType::BitXor => 79,
+      TokenType::BitAnd => 80,
+      TokenType::Exp => 81,
+      TokenType::LogicalOr => 82,
+      TokenType::LogicalAnd => 83,
+      TokenType::NullishCoalescing => 84,
+      TokenType::Assign => 85,
+      TokenType::AddAssign => 86,
+      TokenType::SubAssign => 87,
+      TokenType::MulAssign => 88,
+      TokenType::DivAssign => 89,
+      TokenType::ModAssign => 90,
+      TokenType::LShiftAssign => 91,
+      TokenType::RShiftAssign => 92,
+      TokenType::ZeroFillRShiftAssign => 93,
+      TokenType::BitOrAssign => 94,
+      TokenType::BitXorAssign => 95,
+      TokenType::BitAndAssign => 96,
+      TokenType::ExpAssign => 97,
+      TokenType::AndAssign => 98,
+      TokenType::OrAssign => 99,
+      TokenType::NullishAssign => 100,
+      TokenType::Shebang => 101,
+      TokenType::Error => 102,
+      TokenType::Str => 103,
+      TokenType::Num => 104,
+      TokenType::BigInt => 105,
+      TokenType::Template => 106,
+      TokenType::Regex => 107,
+      TokenType::JSXTagStart => 108,
+      TokenType::JSXTagEnd => 109,
+      TokenType::JSXTagName => 110,
+      TokenType::JSXTagText => 111,
     }
   }
-  fn parse_by_id(id: i32) -> AstTokenType {
+  fn parse_by_id(id: i32) -> TokenType {
     match id {
-      1 => AstTokenType::Await,
-      2 => AstTokenType::Break,
-      3 => AstTokenType::Case,
-      4 => AstTokenType::Catch,
-      5 => AstTokenType::Class,
-      6 => AstTokenType::Const,
-      7 => AstTokenType::Continue,
-      8 => AstTokenType::Debugger,
-      9 => AstTokenType::Default_,
-      10 => AstTokenType::Delete,
-      11 => AstTokenType::Do,
-      12 => AstTokenType::Else,
-      13 => AstTokenType::Export,
-      14 => AstTokenType::Extends,
-      15 => AstTokenType::Finally,
-      16 => AstTokenType::For,
-      17 => AstTokenType::Function,
-      18 => AstTokenType::If,
-      19 => AstTokenType::Import,
-      20 => AstTokenType::In,
-      21 => AstTokenType::InstanceOf,
-      22 => AstTokenType::Let,
-      23 => AstTokenType::New,
-      24 => AstTokenType::Return,
-      25 => AstTokenType::Super,
-      26 => AstTokenType::Switch,
-      27 => AstTokenType::This,
-      28 => AstTokenType::Throw,
-      29 => AstTokenType::Try,
-      30 => AstTokenType::TypeOf,
-      31 => AstTokenType::Var,
-      32 => AstTokenType::Void,
-      33 => AstTokenType::While,
-      34 => AstTokenType::With,
-      35 => AstTokenType::Yield,
-      36 => AstTokenType::Null,
-      37 => AstTokenType::True,
-      38 => AstTokenType::False,
-      39 => AstTokenType::IdentKnown,
-      40 => AstTokenType::IdentOther,
-      41 => AstTokenType::Arrow,
-      42 => AstTokenType::Hash,
-      43 => AstTokenType::At,
-      44 => AstTokenType::Dot,
-      45 => AstTokenType::DotDotDot,
-      46 => AstTokenType::Bang,
-      47 => AstTokenType::LParen,
-      48 => AstTokenType::RParen,
-      49 => AstTokenType::LBracket,
-      50 => AstTokenType::RBracket,
-      51 => AstTokenType::LBrace,
-      52 => AstTokenType::RBrace,
-      53 => AstTokenType::Semi,
-      54 => AstTokenType::Comma,
-      55 => AstTokenType::BackQuote,
-      56 => AstTokenType::Colon,
-      57 => AstTokenType::DollarLBrace,
-      58 => AstTokenType::QuestionMark,
-      59 => AstTokenType::PlusPlus,
-      60 => AstTokenType::MinusMinus,
-      61 => AstTokenType::Tilde,
-      62 => AstTokenType::EqEq,
-      63 => AstTokenType::NotEq,
-      64 => AstTokenType::EqEqEq,
-      65 => AstTokenType::NotEqEq,
-      66 => AstTokenType::Lt,
-      67 => AstTokenType::LtEq,
-      68 => AstTokenType::Gt,
-      69 => AstTokenType::GtEq,
-      70 => AstTokenType::LShift,
-      71 => AstTokenType::RShift,
-      72 => AstTokenType::ZeroFillRShift,
-      73 => AstTokenType::Add,
-      74 => AstTokenType::Sub,
-      75 => AstTokenType::Mul,
-      76 => AstTokenType::Div,
-      77 => AstTokenType::Mod,
-      78 => AstTokenType::BitOr,
-      79 => AstTokenType::BitXor,
-      80 => AstTokenType::BitAnd,
-      81 => AstTokenType::Exp,
-      82 => AstTokenType::LogicalOr,
-      83 => AstTokenType::LogicalAnd,
-      84 => AstTokenType::NullishCoalescing,
-      85 => AstTokenType::Assign,
-      86 => AstTokenType::AddAssign,
-      87 => AstTokenType::SubAssign,
-      88 => AstTokenType::MulAssign,
-      89 => AstTokenType::DivAssign,
-      90 => AstTokenType::ModAssign,
-      91 => AstTokenType::LShiftAssign,
-      92 => AstTokenType::RShiftAssign,
-      93 => AstTokenType::ZeroFillRShiftAssign,
-      94 => AstTokenType::BitOrAssign,
-      95 => AstTokenType::BitXorAssign,
-      96 => AstTokenType::BitAndAssign,
-      97 => AstTokenType::ExpAssign,
-      98 => AstTokenType::AndAssign,
-      99 => AstTokenType::OrAssign,
-      100 => AstTokenType::NullishAssign,
-      101 => AstTokenType::Shebang,
-      102 => AstTokenType::Error,
-      103 => AstTokenType::Str,
-      104 => AstTokenType::Num,
-      105 => AstTokenType::BigInt,
-      106 => AstTokenType::Template,
-      107 => AstTokenType::Regex,
-      108 => AstTokenType::JSXTagStart,
-      109 => AstTokenType::JSXTagEnd,
-      110 => AstTokenType::JSXTagName,
-      111 => AstTokenType::JSXTagText,
-      _ => AstTokenType::Unknown,
+      0 => TokenType::Unknown,
+      1 => TokenType::Await,
+      2 => TokenType::Break,
+      3 => TokenType::Case,
+      4 => TokenType::Catch,
+      5 => TokenType::Class,
+      6 => TokenType::Const,
+      7 => TokenType::Continue,
+      8 => TokenType::Debugger,
+      9 => TokenType::Default_,
+      10 => TokenType::Delete,
+      11 => TokenType::Do,
+      12 => TokenType::Else,
+      13 => TokenType::Export,
+      14 => TokenType::Extends,
+      15 => TokenType::Finally,
+      16 => TokenType::For,
+      17 => TokenType::Function,
+      18 => TokenType::If,
+      19 => TokenType::Import,
+      20 => TokenType::In,
+      21 => TokenType::InstanceOf,
+      22 => TokenType::Let,
+      23 => TokenType::New,
+      24 => TokenType::Return,
+      25 => TokenType::Super,
+      26 => TokenType::Switch,
+      27 => TokenType::This,
+      28 => TokenType::Throw,
+      29 => TokenType::Try,
+      30 => TokenType::TypeOf,
+      31 => TokenType::Var,
+      32 => TokenType::Void,
+      33 => TokenType::While,
+      34 => TokenType::With,
+      35 => TokenType::Yield,
+      36 => TokenType::Null,
+      37 => TokenType::True,
+      38 => TokenType::False,
+      39 => TokenType::IdentKnown,
+      40 => TokenType::IdentOther,
+      41 => TokenType::Arrow,
+      42 => TokenType::Hash,
+      43 => TokenType::At,
+      44 => TokenType::Dot,
+      45 => TokenType::DotDotDot,
+      46 => TokenType::Bang,
+      47 => TokenType::LParen,
+      48 => TokenType::RParen,
+      49 => TokenType::LBracket,
+      50 => TokenType::RBracket,
+      51 => TokenType::LBrace,
+      52 => TokenType::RBrace,
+      53 => TokenType::Semi,
+      54 => TokenType::Comma,
+      55 => TokenType::BackQuote,
+      56 => TokenType::Colon,
+      57 => TokenType::DollarLBrace,
+      58 => TokenType::QuestionMark,
+      59 => TokenType::PlusPlus,
+      60 => TokenType::MinusMinus,
+      61 => TokenType::Tilde,
+      62 => TokenType::EqEq,
+      63 => TokenType::NotEq,
+      64 => TokenType::EqEqEq,
+      65 => TokenType::NotEqEq,
+      66 => TokenType::Lt,
+      67 => TokenType::LtEq,
+      68 => TokenType::Gt,
+      69 => TokenType::GtEq,
+      70 => TokenType::LShift,
+      71 => TokenType::RShift,
+      72 => TokenType::ZeroFillRShift,
+      73 => TokenType::Add,
+      74 => TokenType::Sub,
+      75 => TokenType::Mul,
+      76 => TokenType::Div,
+      77 => TokenType::Mod,
+      78 => TokenType::BitOr,
+      79 => TokenType::BitXor,
+      80 => TokenType::BitAnd,
+      81 => TokenType::Exp,
+      82 => TokenType::LogicalOr,
+      83 => TokenType::LogicalAnd,
+      84 => TokenType::NullishCoalescing,
+      85 => TokenType::Assign,
+      86 => TokenType::AddAssign,
+      87 => TokenType::SubAssign,
+      88 => TokenType::MulAssign,
+      89 => TokenType::DivAssign,
+      90 => TokenType::ModAssign,
+      91 => TokenType::LShiftAssign,
+      92 => TokenType::RShiftAssign,
+      93 => TokenType::ZeroFillRShiftAssign,
+      94 => TokenType::BitOrAssign,
+      95 => TokenType::BitXorAssign,
+      96 => TokenType::BitAndAssign,
+      97 => TokenType::ExpAssign,
+      98 => TokenType::AndAssign,
+      99 => TokenType::OrAssign,
+      100 => TokenType::NullishAssign,
+      101 => TokenType::Shebang,
+      102 => TokenType::Error,
+      103 => TokenType::Str,
+      104 => TokenType::Num,
+      105 => TokenType::BigInt,
+      106 => TokenType::Template,
+      107 => TokenType::Regex,
+      108 => TokenType::JSXTagStart,
+      109 => TokenType::JSXTagEnd,
+      110 => TokenType::JSXTagName,
+      111 => TokenType::JSXTagText,
+      _ => TokenType::Unknown,
     }
   }
 }
 
-impl AstTokenType {
-  pub fn parse_by_assign_operator(token: &AssignOp) -> AstTokenType {
+impl TokenType {
+  pub fn parse_by_assign_operator(token: &AssignOp) -> TokenType {
     match token {
-      AssignOp::Assign => AstTokenType::Assign,
-      AssignOp::AddAssign => AstTokenType::AddAssign,
-      AssignOp::SubAssign => AstTokenType::SubAssign,
-      AssignOp::MulAssign => AstTokenType::MulAssign,
-      AssignOp::DivAssign => AstTokenType::DivAssign,
-      AssignOp::ModAssign => AstTokenType::ModAssign,
-      AssignOp::LShiftAssign => AstTokenType::LShiftAssign,
-      AssignOp::RShiftAssign => AstTokenType::RShiftAssign,
-      AssignOp::ZeroFillRShiftAssign => AstTokenType::ZeroFillRShiftAssign,
-      AssignOp::BitOrAssign => AstTokenType::BitOrAssign,
-      AssignOp::BitXorAssign => AstTokenType::BitXorAssign,
-      AssignOp::BitAndAssign => AstTokenType::BitAndAssign,
-      AssignOp::ExpAssign => AstTokenType::ExpAssign,
-      AssignOp::AndAssign => AstTokenType::AndAssign,
-      AssignOp::OrAssign => AstTokenType::OrAssign,
-      AssignOp::NullishAssign => AstTokenType::NullishAssign,
+      AssignOp::AddAssign => TokenType::AddAssign,
+      AssignOp::AndAssign => TokenType::AndAssign,
+      AssignOp::Assign => TokenType::Assign,
+      AssignOp::BitAndAssign => TokenType::BitAndAssign,
+      AssignOp::BitOrAssign => TokenType::BitOrAssign,
+      AssignOp::BitXorAssign => TokenType::BitXorAssign,
+      AssignOp::DivAssign => TokenType::DivAssign,
+      AssignOp::ExpAssign => TokenType::ExpAssign,
+      AssignOp::LShiftAssign => TokenType::LShiftAssign,
+      AssignOp::ModAssign => TokenType::ModAssign,
+      AssignOp::MulAssign => TokenType::MulAssign,
+      AssignOp::NullishAssign => TokenType::NullishAssign,
+      AssignOp::OrAssign => TokenType::OrAssign,
+      AssignOp::RShiftAssign => TokenType::RShiftAssign,
+      AssignOp::SubAssign => TokenType::SubAssign,
+      AssignOp::ZeroFillRShiftAssign => TokenType::ZeroFillRShiftAssign,
     }
   }
 
-  pub fn parse_by_binary_operator(token: &BinOpToken) -> AstTokenType {
+  pub fn parse_by_binary_operator(token: &BinOpToken) -> TokenType {
     match token {
-      BinOpToken::EqEq => AstTokenType::EqEq,
-      BinOpToken::NotEq => AstTokenType::NotEq,
-      BinOpToken::EqEqEq => AstTokenType::EqEqEq,
-      BinOpToken::NotEqEq => AstTokenType::NotEqEq,
-      BinOpToken::Lt => AstTokenType::Lt,
-      BinOpToken::LtEq => AstTokenType::LtEq,
-      BinOpToken::Gt => AstTokenType::Gt,
-      BinOpToken::GtEq => AstTokenType::GtEq,
-      BinOpToken::LShift => AstTokenType::LShift,
-      BinOpToken::RShift => AstTokenType::RShift,
-      BinOpToken::ZeroFillRShift => AstTokenType::ZeroFillRShift,
-      BinOpToken::Add => AstTokenType::Add,
-      BinOpToken::Sub => AstTokenType::Sub,
-      BinOpToken::Mul => AstTokenType::Mul,
-      BinOpToken::Div => AstTokenType::Div,
-      BinOpToken::Mod => AstTokenType::Mod,
-      BinOpToken::BitOr => AstTokenType::BitOr,
-      BinOpToken::BitXor => AstTokenType::BitXor,
-      BinOpToken::BitAnd => AstTokenType::BitAnd,
-      BinOpToken::Exp => AstTokenType::Exp,
-      BinOpToken::LogicalOr => AstTokenType::LogicalOr,
-      BinOpToken::LogicalAnd => AstTokenType::LogicalAnd,
-      BinOpToken::NullishCoalescing => AstTokenType::NullishCoalescing,
+      BinOpToken::Add => TokenType::Add,
+      BinOpToken::BitAnd => TokenType::BitAnd,
+      BinOpToken::BitOr => TokenType::BitOr,
+      BinOpToken::BitXor => TokenType::BitXor,
+      BinOpToken::Div => TokenType::Div,
+      BinOpToken::EqEq => TokenType::EqEq,
+      BinOpToken::EqEqEq => TokenType::EqEqEq,
+      BinOpToken::Exp => TokenType::Exp,
+      BinOpToken::Gt => TokenType::Gt,
+      BinOpToken::GtEq => TokenType::GtEq,
+      BinOpToken::LShift => TokenType::LShift,
+      BinOpToken::LogicalAnd => TokenType::LogicalAnd,
+      BinOpToken::LogicalOr => TokenType::LogicalOr,
+      BinOpToken::Lt => TokenType::Lt,
+      BinOpToken::LtEq => TokenType::LtEq,
+      BinOpToken::Mod => TokenType::Mod,
+      BinOpToken::Mul => TokenType::Mul,
+      BinOpToken::NotEq => TokenType::NotEq,
+      BinOpToken::NotEqEq => TokenType::NotEqEq,
+      BinOpToken::NullishCoalescing => TokenType::NullishCoalescing,
+      BinOpToken::RShift => TokenType::RShift,
+      BinOpToken::Sub => TokenType::Sub,
+      BinOpToken::ZeroFillRShift => TokenType::ZeroFillRShift,
     }
   }
 
-  pub fn parse_by_generic_operator(token: &Token) -> AstTokenType {
+  pub fn parse_by_generic_operator(token: &Token) -> TokenType {
     match token {
-      Token::Arrow => AstTokenType::Arrow,
-      Token::Hash => AstTokenType::Hash,
-      Token::At => AstTokenType::At,
-      Token::Dot => AstTokenType::Dot,
-      Token::DotDotDot => AstTokenType::DotDotDot,
-      Token::Bang => AstTokenType::Bang,
-      Token::LParen => AstTokenType::LParen,
-      Token::RParen => AstTokenType::RParen,
-      Token::LBracket => AstTokenType::LBracket,
-      Token::RBracket => AstTokenType::RBracket,
-      Token::LBrace => AstTokenType::LBrace,
-      Token::RBrace => AstTokenType::RBrace,
-      Token::Semi => AstTokenType::Semi,
-      Token::Comma => AstTokenType::Comma,
-      Token::BackQuote => AstTokenType::BackQuote,
-      Token::Colon => AstTokenType::Colon,
-      Token::DollarLBrace => AstTokenType::DollarLBrace,
-      Token::QuestionMark => AstTokenType::QuestionMark,
-      Token::PlusPlus => AstTokenType::PlusPlus,
-      Token::MinusMinus => AstTokenType::MinusMinus,
-      Token::Tilde => AstTokenType::Tilde,
-      Token::JSXTagStart => AstTokenType::JSXTagStart,
-      Token::JSXTagEnd => AstTokenType::JSXTagEnd,
-      _ => AstTokenType::Unknown,
+      Token::Arrow => TokenType::Arrow,
+      Token::At => TokenType::At,
+      Token::BackQuote => TokenType::BackQuote,
+      Token::Bang => TokenType::Bang,
+      Token::Colon => TokenType::Colon,
+      Token::Comma => TokenType::Comma,
+      Token::DollarLBrace => TokenType::DollarLBrace,
+      Token::Dot => TokenType::Dot,
+      Token::DotDotDot => TokenType::DotDotDot,
+      Token::Hash => TokenType::Hash,
+      Token::JSXTagEnd => TokenType::JSXTagEnd,
+      Token::JSXTagStart => TokenType::JSXTagStart,
+      Token::LBrace => TokenType::LBrace,
+      Token::LBracket => TokenType::LBracket,
+      Token::LParen => TokenType::LParen,
+      Token::MinusMinus => TokenType::MinusMinus,
+      Token::PlusPlus => TokenType::PlusPlus,
+      Token::QuestionMark => TokenType::QuestionMark,
+      Token::RBrace => TokenType::RBrace,
+      Token::RBracket => TokenType::RBracket,
+      Token::RParen => TokenType::RParen,
+      Token::Semi => TokenType::Semi,
+      Token::Tilde => TokenType::Tilde,
+      _ => TokenType::Unknown,
     }
   }
 
-  pub fn parse_by_keyword(token: &Keyword) -> AstTokenType {
+  pub fn parse_by_keyword(token: &Keyword) -> TokenType {
     match token {
-      Keyword::Await => AstTokenType::Await,
-      Keyword::Break => AstTokenType::Break,
-      Keyword::Case => AstTokenType::Case,
-      Keyword::Catch => AstTokenType::Catch,
-      Keyword::Class => AstTokenType::Class,
-      Keyword::Const => AstTokenType::Const,
-      Keyword::Continue => AstTokenType::Continue,
-      Keyword::Debugger => AstTokenType::Debugger,
-      Keyword::Default_ => AstTokenType::Default_,
-      Keyword::Delete => AstTokenType::Delete,
-      Keyword::Do => AstTokenType::Do,
-      Keyword::Else => AstTokenType::Else,
-      Keyword::Export => AstTokenType::Export,
-      Keyword::Extends => AstTokenType::Extends,
-      Keyword::Finally => AstTokenType::Finally,
-      Keyword::For => AstTokenType::For,
-      Keyword::Function => AstTokenType::Function,
-      Keyword::If => AstTokenType::If,
-      Keyword::Import => AstTokenType::Import,
-      Keyword::In => AstTokenType::In,
-      Keyword::InstanceOf => AstTokenType::InstanceOf,
-      Keyword::Let => AstTokenType::Let,
-      Keyword::New => AstTokenType::New,
-      Keyword::Return => AstTokenType::Return,
-      Keyword::Super => AstTokenType::Super,
-      Keyword::Switch => AstTokenType::Switch,
-      Keyword::This => AstTokenType::This,
-      Keyword::Throw => AstTokenType::Throw,
-      Keyword::Try => AstTokenType::Try,
-      Keyword::TypeOf => AstTokenType::TypeOf,
-      Keyword::Var => AstTokenType::Var,
-      Keyword::Void => AstTokenType::Void,
-      Keyword::While => AstTokenType::While,
-      Keyword::With => AstTokenType::With,
-      Keyword::Yield => AstTokenType::Yield,
+      Keyword::Await => TokenType::Await,
+      Keyword::Break => TokenType::Break,
+      Keyword::Case => TokenType::Case,
+      Keyword::Catch => TokenType::Catch,
+      Keyword::Class => TokenType::Class,
+      Keyword::Const => TokenType::Const,
+      Keyword::Continue => TokenType::Continue,
+      Keyword::Debugger => TokenType::Debugger,
+      Keyword::Default_ => TokenType::Default_,
+      Keyword::Delete => TokenType::Delete,
+      Keyword::Do => TokenType::Do,
+      Keyword::Else => TokenType::Else,
+      Keyword::Export => TokenType::Export,
+      Keyword::Extends => TokenType::Extends,
+      Keyword::Finally => TokenType::Finally,
+      Keyword::For => TokenType::For,
+      Keyword::Function => TokenType::Function,
+      Keyword::If => TokenType::If,
+      Keyword::Import => TokenType::Import,
+      Keyword::In => TokenType::In,
+      Keyword::InstanceOf => TokenType::InstanceOf,
+      Keyword::Let => TokenType::Let,
+      Keyword::New => TokenType::New,
+      Keyword::Return => TokenType::Return,
+      Keyword::Super => TokenType::Super,
+      Keyword::Switch => TokenType::Switch,
+      Keyword::This => TokenType::This,
+      Keyword::Throw => TokenType::Throw,
+      Keyword::Try => TokenType::Try,
+      Keyword::TypeOf => TokenType::TypeOf,
+      Keyword::Var => TokenType::Var,
+      Keyword::Void => TokenType::Void,
+      Keyword::While => TokenType::While,
+      Keyword::With => TokenType::With,
+      Keyword::Yield => TokenType::Yield,
     }
   }
 }
 
-pub struct JavaAstTokenType {
-  #[allow(dead_code)]
-  class: GlobalRef,
-  method_get_id: JMethodID,
-  method_parse: JStaticMethodID,
-}
-unsafe impl Send for JavaAstTokenType {}
-unsafe impl Sync for JavaAstTokenType {}
-
-impl JavaAstTokenType {
-  pub fn new<'local>(env: &mut JNIEnv<'local>) -> Self {
-    let class = env
-      .find_class("com/caoccao/javet/swc4j/enums/Swc4jAstTokenType")
-      .expect("Couldn't find class Swc4jAstTokenType");
-    let class = env
-      .new_global_ref(class)
-      .expect("Couldn't globalize class Swc4jAstTokenType");
-    let method_get_id = env
-      .get_method_id(&class, "getId", "()I")
-      .expect("Couldn't find method Swc4jAstTokenType.getId");
-    let method_parse = env
-      .get_static_method_id(&class, "parse", "(I)Lcom/caoccao/javet/swc4j/enums/Swc4jAstTokenType;")
-      .expect("Couldn't find static method Swc4jAstTokenType.parse");
-    JavaAstTokenType {
-      class,
-      method_get_id,
-      method_parse,
-    }
-  }
-
-  pub fn get_ast_token_type<'local, 'a>(&self, env: &mut JNIEnv<'local>, obj: &JObject<'a>) -> AstTokenType {
-    let id = jni_utils::get_as_int(env, obj.as_ref(), self.method_get_id);
-    AstTokenType::parse_by_id(id)
-  }
-
-  pub fn parse<'local, 'a>(&self, env: &mut JNIEnv<'local>, id: i32) -> JObject<'a>
-  where
-    'local: 'a,
-  {
-    let id = jvalue { i: id };
-    unsafe {
-      env
-        .call_static_method_unchecked(&self.class, self.method_parse, ReturnType::Object, &[id])
-        .expect("Object is expected")
-        .l()
-        .expect("Couldn't convert to JObject")
-    }
-  }
-}
-
-impl IdentifiableEnum<ImportsNotUsedAsValues> for ImportsNotUsedAsValues {
+impl IdentifiableEnum<TruePlusMinus> for TruePlusMinus {
   fn get_id(&self) -> i32 {
     match self {
-      ImportsNotUsedAsValues::Remove => 0,
-      ImportsNotUsedAsValues::Preserve => 1,
-      ImportsNotUsedAsValues::Error => 2,
+      TruePlusMinus::True => 0,
+      TruePlusMinus::Plus => 1,
+      TruePlusMinus::Minus => 2,
     }
   }
-  fn parse_by_id(id: i32) -> ImportsNotUsedAsValues {
+  fn parse_by_id(id: i32) -> TruePlusMinus {
     match id {
-      0 => ImportsNotUsedAsValues::Remove,
-      1 => ImportsNotUsedAsValues::Preserve,
-      _ => ImportsNotUsedAsValues::Error,
+      1 => TruePlusMinus::Plus,
+      2 => TruePlusMinus::Minus,
+      _ => TruePlusMinus::True,
     }
   }
 }
 
-pub struct JavaImportsNotUsedAsValues {
-  #[allow(dead_code)]
-  class: GlobalRef,
-  method_get_id: JMethodID,
-}
-unsafe impl Send for JavaImportsNotUsedAsValues {}
-unsafe impl Sync for JavaImportsNotUsedAsValues {}
-
-impl JavaImportsNotUsedAsValues {
-  pub fn new<'local>(env: &mut JNIEnv<'local>) -> Self {
-    let class = env
-      .find_class("com/caoccao/javet/swc4j/enums/Swc4jImportsNotUsedAsValues")
-      .expect("Couldn't find class Swc4jImportsNotUsedAsValues");
-    let class = env
-      .new_global_ref(class)
-      .expect("Couldn't globalize class Swc4jImportsNotUsedAsValues");
-    let method_get_id = env
-      .get_method_id(&class, "getId", "()I")
-      .expect("Couldn't find method Swc4jImportsNotUsedAsValues.getId");
-    JavaImportsNotUsedAsValues { class, method_get_id }
-  }
-
-  pub fn get_imports_not_used_as_values<'local, 'a>(
-    &self,
-    env: &mut JNIEnv<'local>,
-    obj: &JObject<'a>,
-  ) -> ImportsNotUsedAsValues {
-    let id = jni_utils::get_as_int(env, obj.as_ref(), self.method_get_id);
-    ImportsNotUsedAsValues::parse_by_id(id)
-  }
-}
-
-impl IdentifiableEnum<MediaType> for MediaType {
+impl IdentifiableEnum<TsKeywordTypeKind> for TsKeywordTypeKind {
   fn get_id(&self) -> i32 {
     match self {
-      MediaType::JavaScript => 0,
-      MediaType::Jsx => 1,
-      MediaType::Mjs => 2,
-      MediaType::Cjs => 3,
-      MediaType::TypeScript => 4,
-      MediaType::Mts => 5,
-      MediaType::Cts => 6,
-      MediaType::Dts => 7,
-      MediaType::Dmts => 8,
-      MediaType::Dcts => 9,
-      MediaType::Tsx => 10,
-      MediaType::Json => 11,
-      MediaType::Wasm => 12,
-      MediaType::TsBuildInfo => 13,
-      MediaType::SourceMap => 14,
-      MediaType::Unknown => 15,
+      TsKeywordTypeKind::TsAnyKeyword => 0,
+      TsKeywordTypeKind::TsBigIntKeyword => 1,
+      TsKeywordTypeKind::TsBooleanKeyword => 2,
+      TsKeywordTypeKind::TsIntrinsicKeyword => 3,
+      TsKeywordTypeKind::TsNeverKeyword => 4,
+      TsKeywordTypeKind::TsNullKeyword => 5,
+      TsKeywordTypeKind::TsNumberKeyword => 6,
+      TsKeywordTypeKind::TsObjectKeyword => 7,
+      TsKeywordTypeKind::TsStringKeyword => 8,
+      TsKeywordTypeKind::TsSymbolKeyword => 9,
+      TsKeywordTypeKind::TsUndefinedKeyword => 10,
+      TsKeywordTypeKind::TsUnknownKeyword => 11,
+      TsKeywordTypeKind::TsVoidKeyword => 12,
     }
   }
-  fn parse_by_id(id: i32) -> MediaType {
+  fn parse_by_id(id: i32) -> TsKeywordTypeKind {
     match id {
-      0 => MediaType::JavaScript,
-      1 => MediaType::Jsx,
-      2 => MediaType::Mjs,
-      3 => MediaType::Cjs,
-      4 => MediaType::TypeScript,
-      5 => MediaType::Mts,
-      6 => MediaType::Cts,
-      7 => MediaType::Dts,
-      8 => MediaType::Dmts,
-      9 => MediaType::Dcts,
-      10 => MediaType::Tsx,
-      11 => MediaType::Json,
-      12 => MediaType::Wasm,
-      13 => MediaType::TsBuildInfo,
-      14 => MediaType::SourceMap,
-      _ => MediaType::Unknown,
+      0 => TsKeywordTypeKind::TsAnyKeyword,
+      1 => TsKeywordTypeKind::TsBigIntKeyword,
+      2 => TsKeywordTypeKind::TsBooleanKeyword,
+      3 => TsKeywordTypeKind::TsIntrinsicKeyword,
+      4 => TsKeywordTypeKind::TsNeverKeyword,
+      5 => TsKeywordTypeKind::TsNullKeyword,
+      6 => TsKeywordTypeKind::TsNumberKeyword,
+      7 => TsKeywordTypeKind::TsObjectKeyword,
+      8 => TsKeywordTypeKind::TsStringKeyword,
+      9 => TsKeywordTypeKind::TsSymbolKeyword,
+      10 => TsKeywordTypeKind::TsUndefinedKeyword,
+      11 => TsKeywordTypeKind::TsUnknownKeyword,
+      12 => TsKeywordTypeKind::TsVoidKeyword,
+      _ => TsKeywordTypeKind::TsAnyKeyword,
     }
   }
 }
 
-pub struct JavaMediaType {
-  #[allow(dead_code)]
-  class: GlobalRef,
-  method_get_id: JMethodID,
-  method_parse: JStaticMethodID,
-}
-unsafe impl Send for JavaMediaType {}
-unsafe impl Sync for JavaMediaType {}
-
-impl JavaMediaType {
-  pub fn new<'local>(env: &mut JNIEnv<'local>) -> Self {
-    let class = env
-      .find_class("com/caoccao/javet/swc4j/enums/Swc4jMediaType")
-      .expect("Couldn't find class Swc4jMediaType");
-    let class = env
-      .new_global_ref(class)
-      .expect("Couldn't globalize class Swc4jMediaType");
-    let method_get_id = env
-      .get_method_id(&class, "getId", "()I")
-      .expect("Couldn't find method Swc4jMediaType.getId");
-    let method_parse = env
-      .get_static_method_id(&class, "parse", "(I)Lcom/caoccao/javet/swc4j/enums/Swc4jMediaType;")
-      .expect("Couldn't find static method Swc4jMediaType.parse");
-    JavaMediaType {
-      class,
-      method_get_id,
-      method_parse,
-    }
-  }
-
-  pub fn get_media_type<'local, 'a>(&self, env: &mut JNIEnv<'local>, obj: &JObject<'a>) -> MediaType {
-    let id = jni_utils::get_as_int(env, obj.as_ref(), self.method_get_id);
-    MediaType::parse_by_id(id)
-  }
-
-  pub fn parse<'local>(&self, env: &mut JNIEnv<'local>, id: i32) -> jvalue {
-    let id = jvalue { i: id };
-    unsafe {
-      env
-        .call_static_method_unchecked(&self.class, self.method_parse, ReturnType::Object, &[id])
-        .expect("Object is expected")
-        .as_jni()
-    }
-  }
-}
-
-#[derive(Debug, Copy, Clone)]
-pub enum ParseMode {
-  Module,
-  Script,
-}
-
-impl IdentifiableEnum<ParseMode> for ParseMode {
+impl IdentifiableEnum<TsTypeOperatorOp> for TsTypeOperatorOp {
   fn get_id(&self) -> i32 {
     match self {
-      ParseMode::Module => 0,
-      ParseMode::Script => 1,
+      TsTypeOperatorOp::KeyOf => 0,
+      TsTypeOperatorOp::ReadOnly => 1,
+      TsTypeOperatorOp::Unique => 2,
     }
   }
-  fn parse_by_id(id: i32) -> ParseMode {
+  fn parse_by_id(id: i32) -> TsTypeOperatorOp {
     match id {
-      0 => ParseMode::Module,
-      _ => ParseMode::Script,
+      0 => TsTypeOperatorOp::KeyOf,
+      1 => TsTypeOperatorOp::ReadOnly,
+      2 => TsTypeOperatorOp::Unique,
+      _ => TsTypeOperatorOp::KeyOf,
     }
   }
 }
 
-pub struct JavaParseMode {
-  #[allow(dead_code)]
-  class: GlobalRef,
-  method_get_id: JMethodID,
-}
-unsafe impl Send for JavaParseMode {}
-unsafe impl Sync for JavaParseMode {}
-
-impl JavaParseMode {
-  pub fn new<'local>(env: &mut JNIEnv<'local>) -> Self {
-    let class = env
-      .find_class("com/caoccao/javet/swc4j/enums/Swc4jParseMode")
-      .expect("Couldn't find class Swc4jParseMode");
-    let class = env
-      .new_global_ref(class)
-      .expect("Couldn't globalize class Swc4jParseMode");
-    let method_get_id = env
-      .get_method_id(&class, "getId", "()I")
-      .expect("Couldn't find method Swc4jParseMode.getId");
-    JavaParseMode { class, method_get_id }
+impl IdentifiableEnum<UnaryOp> for UnaryOp {
+  fn get_id(&self) -> i32 {
+    match self {
+      UnaryOp::Void => 0,
+      UnaryOp::Bang => 1,
+      UnaryOp::Delete => 2,
+      UnaryOp::Minus => 3,
+      UnaryOp::Plus => 4,
+      UnaryOp::Tilde => 5,
+      UnaryOp::TypeOf => 6,
+    }
   }
-
-  pub fn get_parse_mode<'local, 'a>(&self, env: &mut JNIEnv<'local>, obj: &JObject<'a>) -> ParseMode {
-    let id = jni_utils::get_as_int(env, obj.as_ref(), self.method_get_id);
-    ParseMode::parse_by_id(id)
+  fn parse_by_id(id: i32) -> UnaryOp {
+    match id {
+      0 => UnaryOp::Void,
+      1 => UnaryOp::Bang,
+      2 => UnaryOp::Delete,
+      3 => UnaryOp::Minus,
+      4 => UnaryOp::Plus,
+      5 => UnaryOp::Tilde,
+      6 => UnaryOp::TypeOf,
+      _ => UnaryOp::Void,
+    }
   }
 }
 
-pub static mut JAVA_AST_TOKEN_TYPE: Option<JavaAstTokenType> = None;
-pub static mut JAVA_IMPORTS_NOT_USED_AS_VALUES: Option<JavaImportsNotUsedAsValues> = None;
-pub static mut JAVA_MEDIA_TYPE: Option<JavaMediaType> = None;
-pub static mut JAVA_PARSE_MODE: Option<JavaParseMode> = None;
+impl IdentifiableEnum<UpdateOp> for UpdateOp {
+  fn get_id(&self) -> i32 {
+    match self {
+      UpdateOp::PlusPlus => 0,
+      UpdateOp::MinusMinus => 1,
+    }
+  }
+  fn parse_by_id(id: i32) -> UpdateOp {
+    match id {
+      0 => UpdateOp::PlusPlus,
+      1 => UpdateOp::MinusMinus,
+      _ => UpdateOp::PlusPlus,
+    }
+  }
+}
 
-pub fn init<'local>(env: &mut JNIEnv<'local>) {
-  unsafe {
-    JAVA_AST_TOKEN_TYPE = Some(JavaAstTokenType::new(env));
-    JAVA_IMPORTS_NOT_USED_AS_VALUES = Some(JavaImportsNotUsedAsValues::new(env));
-    JAVA_MEDIA_TYPE = Some(JavaMediaType::new(env));
-    JAVA_PARSE_MODE = Some(JavaParseMode::new(env));
+impl IdentifiableEnum<VarDeclKind> for VarDeclKind {
+  fn get_id(&self) -> i32 {
+    match self {
+      VarDeclKind::Const => 0,
+      VarDeclKind::Let => 1,
+      VarDeclKind::Var => 2,
+    }
+  }
+  fn parse_by_id(id: i32) -> VarDeclKind {
+    match id {
+      0 => VarDeclKind::Const,
+      1 => VarDeclKind::Let,
+      2 => VarDeclKind::Var,
+      _ => VarDeclKind::Const,
+    }
   }
 }

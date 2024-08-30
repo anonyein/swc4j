@@ -1,0 +1,53 @@
+digraph {
+  rankdir="LR"
+  AssignTarget -> { SimpleAssignTarget AssignTargetPat }
+  SimpleAssignTarget -> { BindingIdent Invalid MemberExpr OptChainExpr ParenExpr SuperPropExpr TsAsExpr TsInstantiation TsNonNullExpr TsSatisfiesExpr TsTypeAssertion }
+  AssignTargetPat -> { ArrayPat Invalid ObjectPat }
+  BlockStmtOrExpr -> { BlockStmt Expr }
+  Expr -> { ArrayLit ArrowExpr AssignExpr AwaitExpr BinExpr CallExpr ClassExpr CondExpr FnExpr Ident Invalid JSXElement JSXEmptyExpr JSXFragment JSXMemberExpr JSXNamespacedName Lit MemberExpr MetaPropExpr NewExpr ObjectLit OptChainExpr ParenExpr PrivateName SeqExpr SuperPropExpr TaggedTpl ThisExpr Tpl TsAsExpr TsConstAssertion TsInstantiation TsNonNullExpr TsSatisfiesExpr TsTypeAssertion UnaryExpr UpdateExpr YieldExpr }
+  Lit -> { BigInt Bool JSXText Null Number Regex Str }
+  Callee -> { Expr Import Super }
+  ClassMember -> { AutoAccessor ClassProp Constructor EmptyStmt ClassMethod PrivateMethod PrivateProp StaticBlock TsIndexSignature }
+  Decl -> { ClassDecl FnDecl TsEnumDecl TsInterfaceDecl TsModuleDecl TsTypeAliasDecl UsingDecl VarDecl }
+  DefaultDecl -> { ClassExpr FnExpr TsInterfaceDecl }
+  ExportSpecifier -> { ExportDefaultSpecifier ExportNamedSpecifier ExportNamespaceSpecifier }
+  ForHead -> { Pat UsingDecl VarDecl }
+  Pat -> { ArrayPat AssignPat Expr BindingIdent Invalid ObjectPat RestPat }
+  ImportSpecifier -> { ImportDefaultSpecifier ImportNamedSpecifier ImportStarAsSpecifier }
+  JSXAttrName -> { IdentName JSXNamespacedName }
+  JSXAttrOrSpread -> { JSXAttr SpreadElement }
+  JSXAttrValue -> { JSXElement JSXExprContainer JSXFragment Lit }
+  JSXElementChild -> { JSXElement JSXExprContainer JSXFragment JSXSpreadChild JSXText }
+  JSXElementName -> { Ident JSXMemberExpr JSXNamespacedName }
+  JSXExpr -> { Expr JSXEmptyExpr }
+  JSXObject -> { Ident JSXMemberExpr }
+  Key -> { PrivateName PropName }
+  PropName -> { BigInt ComputedPropName IdentName Number Str }
+  MemberProp -> { ComputedPropName IdentName PrivateName }
+  ModuleDecl -> { ExportAll ExportDecl ExportDefaultDecl ExportDefaultExpr NamedExport ImportDecl TsExportAssignment TsImportEqualsDecl TsNamespaceExportDecl }
+  ModuleExportName -> { Ident Str }
+  ModuleItem -> { ModuleDecl Stmt }
+  Stmt -> { BlockStmt BreakStmt ContinueStmt DebuggerStmt Decl DoWhileStmt EmptyStmt ExprStmt ForStmt ForInStmt ForOfStmt IfStmt LabeledStmt ReturnStmt SwitchStmt ThrowStmt TryStmt WhileStmt WithStmt }
+  ObjectPatProp -> { AssignPatProp KeyValuePatProp RestPat }
+  OptChainBase -> { OptCall MemberExpr }
+  ParamOrTsParamProp -> { Param TsParamProp }
+  Program -> { Module Script }
+  Prop -> { AssignProp GetterProp KeyValueProp MethodProp SetterProp Ident }
+  PropOrSpread -> { Prop SpreadElement }
+  SuperProp -> { ComputedPropName IdentName }
+  TsEntityName -> { Ident TsQualifiedName }
+  TsEnumMemberId -> { Ident Str }
+  TsFnOrConstructorType -> { TsConstructorType TsFnType }
+  TsFnParam -> { ArrayPat BindingIdent ObjectPat RestPat }
+  TsLit -> { BigInt Bool Number Str TsTplLitType }
+  TsModuleName -> { Ident Str }
+  TsModuleRef -> { TsEntityName TsExternalModuleRef }
+  TsNamespaceBody -> { TsModuleBlock TsNamespaceDecl }
+  TsParamPropParam -> { AssignPat BindingIdent }
+  TsThisTypeOrIdent -> { Ident TsThisType }
+  TsType -> { TsArrayType TsConditionalType TsFnOrConstructorType TsImportType TsIndexedAccessType TsInferType TsKeywordType TsLitType TsMappedType TsOptionalType TsParenthesizedType TsRestType TsThisType TsTupleType TsTypeLit TsTypeOperator TsTypePredicate TsTypeQuery TsTypeRef TsUnionOrIntersectionType }
+  TsUnionOrIntersectionType -> { TsIntersectionType TsUnionType }
+  TsTypeElement -> { TsCallSignatureDecl TsConstructSignatureDecl TsGetterSignature TsIndexSignature TsMethodSignature TsPropertySignature TsSetterSignature }
+  TsTypeQueryExpr -> { TsImportType TsEntityName }
+  VarDeclOrExpr -> { Expr VarDecl }
+}

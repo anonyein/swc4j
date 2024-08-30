@@ -16,16 +16,19 @@
 
 package com.caoccao.javet.swc4j.tutorials;
 
-import com.caoccao.javet.exceptions.JavetException;
 import com.caoccao.javet.swc4j.Swc4j;
 import com.caoccao.javet.swc4j.enums.Swc4jMediaType;
 import com.caoccao.javet.swc4j.enums.Swc4jParseMode;
+import com.caoccao.javet.swc4j.enums.Swc4jSourceMapOption;
 import com.caoccao.javet.swc4j.exceptions.Swc4jCoreException;
 import com.caoccao.javet.swc4j.options.Swc4jTranspileOptions;
 import com.caoccao.javet.swc4j.outputs.Swc4jTranspileOutput;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class Tutorial02TranspileJsx {
-    public static void main(String[] args) throws Swc4jCoreException, JavetException {
+    public static void main(String[] args) throws Swc4jCoreException, MalformedURLException {
         // Create an instance of swc4j.
         Swc4j swc4j = new Swc4j();
         // Prepare a simple React Hello World Jsx code snippet.
@@ -38,7 +41,7 @@ public class Tutorial02TranspileJsx {
                 "}\n" +
                 "export default App;";
         // Prepare a script name.
-        String specifier = "file:///abc.ts";
+        URL specifier = new URL("file:///abc.ts");
         // Prepare an option with script name and media type.
         Swc4jTranspileOptions options = new Swc4jTranspileOptions()
                 .setSpecifier(specifier)
@@ -53,7 +56,7 @@ public class Tutorial02TranspileJsx {
         System.out.println("*********************************************/");
         System.out.println(output.getCode());
         // Remove the inline source map.
-        options.setInlineSourceMap(false).setSourceMap(true);
+        options.setSourceMap(Swc4jSourceMapOption.None);
         // Customize the Jsx factory.
         options.setJsxFactory("CustomJsxFactory.createElement");
         output = swc4j.transpile(code, options);

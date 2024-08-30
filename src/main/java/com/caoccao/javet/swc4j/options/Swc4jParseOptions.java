@@ -18,50 +18,44 @@ package com.caoccao.javet.swc4j.options;
 
 import com.caoccao.javet.swc4j.enums.Swc4jMediaType;
 import com.caoccao.javet.swc4j.enums.Swc4jParseMode;
-import com.caoccao.javet.swc4j.utils.AssertionUtils;
+import com.caoccao.javet.swc4j.jni2rust.Jni2RustClass;
+import com.caoccao.javet.swc4j.jni2rust.Jni2RustFilePath;
+import com.caoccao.javet.swc4j.jni2rust.Jni2RustMethod;
+import com.caoccao.javet.swc4j.plugins.ISwc4jPluginHost;
+
+import java.net.URL;
 
 /**
  * The type Swc4j parse options.
  *
  * @since 0.2.0
  */
-public class Swc4jParseOptions {
+@Jni2RustClass(filePath = Jni2RustFilePath.Options)
+public class Swc4jParseOptions extends Swc4jOptions {
     /**
-     * The constant DEFAULT_SPECIFIER.
+     * Whether to capture ast or not.
      *
      * @since 0.2.0
      */
-    public static final String DEFAULT_SPECIFIER = "file:///main.js";
+    protected boolean captureAst;
     /**
-     * The Capture tokens.
+     * Whether to capture comments or not.
+     *
+     * @since 0.4.0
+     */
+    protected boolean captureComments;
+    /**
+     * Whether to capture tokens or not.
      *
      * @since 0.2.0
      */
     protected boolean captureTokens;
     /**
-     * The Media type.
-     *
-     * @since 0.2.0
-     */
-    protected Swc4jMediaType mediaType;
-    /**
-     * The Parse mode.
-     *
-     * @since 0.2.0
-     */
-    protected Swc4jParseMode parseMode;
-    /**
-     * The Scope analysis.
+     * Whether to apply swc's scope analysis.
      *
      * @since 0.2.0
      */
     protected boolean scopeAnalysis;
-    /**
-     * The Specifier.
-     *
-     * @since 0.2.0
-     */
-    protected String specifier;
 
     /**
      * Instantiates a new Swc4j parse options.
@@ -69,61 +63,79 @@ public class Swc4jParseOptions {
      * @since 0.2.0
      */
     public Swc4jParseOptions() {
+        super();
+        setCaptureAst(false);
+        setCaptureComments(false);
         setCaptureTokens(false);
-        setMediaType(Swc4jMediaType.JavaScript);
-        setParseMode(Swc4jParseMode.Module);
         setScopeAnalysis(false);
-        setSpecifier(DEFAULT_SPECIFIER);
     }
 
     /**
-     * Gets Media type of the source text.
+     * Is capture ast.
      *
-     * @return the media type
+     * @return true : yes, false : no
      * @since 0.2.0
      */
-    public Swc4jMediaType getMediaType() {
-        return mediaType;
+    @Jni2RustMethod
+    public boolean isCaptureAst() {
+        return captureAst;
     }
 
     /**
-     * Gets parse mode.
+     * Is capture comments.
      *
-     * @return the parse mode
-     * @since 0.2.0
+     * @return true : capture comments, false : not capture comments
+     * @since 0.4.0
      */
-    public Swc4jParseMode getParseMode() {
-        return parseMode;
+    @Jni2RustMethod
+    public boolean isCaptureComments() {
+        return captureComments;
     }
 
     /**
-     * Gets Specifier of the source text.
+     * Is capture tokens.
      *
-     * @return the specifier
+     * @return true : yes, false : no
      * @since 0.2.0
      */
-    public String getSpecifier() {
-        return specifier;
-    }
-
-    /**
-     * Whether to capture tokens or not.
-     *
-     * @return true : capture tokens, false : not capture tokens
-     * @since 0.2.0
-     */
+    @Jni2RustMethod
     public boolean isCaptureTokens() {
         return captureTokens;
     }
 
     /**
-     * Whether to apply swc's scope analysis.
+     * Is scope analysis.
      *
-     * @return true : scope analysis, false : not scope analysis
+     * @return true : yes, false : no
      * @since 0.2.0
      */
+    @Jni2RustMethod
     public boolean isScopeAnalysis() {
         return scopeAnalysis;
+    }
+
+    /**
+     * Sets capture ast.
+     *
+     * @param captureAst the capture ast
+     * @return the self
+     * @since 0.2.0
+     */
+    public Swc4jParseOptions setCaptureAst(boolean captureAst) {
+        this.captureAst = captureAst;
+        return this;
+    }
+
+    /**
+     * Sets capture comments.
+     *
+     * @param captureComments the capture comments
+     * @return the self
+     * @since 0.4.0
+     */
+    public Swc4jParseOptions setCaptureComments(boolean captureComments) {
+        this.captureComments = captureComments;
+        return this;
     }
 
     /**
@@ -138,27 +150,21 @@ public class Swc4jParseOptions {
         return this;
     }
 
-    /**
-     * Sets Media type of the source text.
-     *
-     * @param mediaType the Media type of the source text
-     * @return the self
-     * @since 0.2.0
-     */
+    @Override
     public Swc4jParseOptions setMediaType(Swc4jMediaType mediaType) {
-        this.mediaType = AssertionUtils.notNull(mediaType, "Media type");
+        super.setMediaType(mediaType);
         return this;
     }
 
-    /**
-     * Sets parse mode.
-     *
-     * @param parseMode the parse mode
-     * @return the self
-     * @since 0.2.0
-     */
+    @Override
     public Swc4jParseOptions setParseMode(Swc4jParseMode parseMode) {
-        this.parseMode = AssertionUtils.notNull(parseMode, "Parse mode");
+        super.setParseMode(parseMode);
+        return this;
+    }
+
+    @Override
+    public Swc4jParseOptions setPluginHost(ISwc4jPluginHost pluginHost) {
+        super.setPluginHost(pluginHost);
         return this;
     }
 
@@ -174,15 +180,9 @@ public class Swc4jParseOptions {
         return this;
     }
 
-    /**
-     * Sets Specifier of the source text.
-     *
-     * @param specifier the Specifier of the source text
-     * @return the self
-     * @since 0.2.0
-     */
-    public Swc4jParseOptions setSpecifier(String specifier) {
-        this.specifier = AssertionUtils.notNull(specifier, "Specifier");
+    @Override
+    public Swc4jParseOptions setSpecifier(URL specifier) {
+        super.setSpecifier(specifier);
         return this;
     }
 }

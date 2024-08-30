@@ -22,7 +22,7 @@ String code = "import React from 'react';\n" +
         "}\n" +
         "export default App;";
 // Prepare a script name.
-String specifier = "file:///abc.ts";
+URL specifier = new URL("file:///abc.ts");
 // Prepare an option with script name and media type.
 Swc4jTranspileOptions options = new Swc4jTranspileOptions()
         .setSpecifier(specifier)
@@ -38,7 +38,7 @@ System.out.println("*********************************************/");
 System.out.println(output.getCode());
 ```
 
-* The output is as follows. As you can see, the Jsx code is transpiled into JavaScript code with the source map inlined.
+* The output is as follows. As we can see, the Jsx code is transpiled into JavaScript code with the source map inlined.
 
 ```js
 /*********************************************
@@ -47,7 +47,7 @@ System.out.println(output.getCode());
 import React from 'react';
 import './App.css';
 function App() {
-  return /*#__PURE__*/ React.createElement("h1", null, " Hello World! ");
+  return React.createElement("h1", null, " Hello World! ");
 }
 export default App;
 //# sourceMappingURL=data:application/json;base64,...
@@ -55,13 +55,13 @@ export default App;
 
 ## Customize the Jsx Factory for React
 
-You may want to replace the default Jsx factory with a customized one. Yes, that's supported.
+We may want to replace the default Jsx factory with a customized one. Yes, that's supported.
 
 * Append the following code to that Java application.
 
 ```java
 // Remove the inline source map.
-options.setInlineSourceMap(false).setSourceMap(true);
+options.setSourceMap(Swc4jSourceMapOption.None);
 // Customize the Jsx factory.
 options.setJsxFactory("CustomJsxFactory.createElement");
 output = swc4j.transpile(code, options);
@@ -72,7 +72,7 @@ System.out.println("*********************************************/");
 System.out.println(output.getCode());
 ```
 
-* The output is as follows. As you can see, the Jsx factory is updated.
+* The output is as follows. As we can see, the Jsx factory is updated.
 
 ```js
 /*********************************************
@@ -81,7 +81,7 @@ System.out.println(output.getCode());
 import React from 'react';
 import './App.css';
 function App() {
-  return /*#__PURE__*/ CustomJsxFactory.createElement("h1", null, " Hello World! ");
+  return CustomJsxFactory.createElement("h1", null, " Hello World! ");
 }
 export default App;
 ```

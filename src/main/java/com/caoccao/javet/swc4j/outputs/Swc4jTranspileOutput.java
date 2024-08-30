@@ -16,8 +16,16 @@
 
 package com.caoccao.javet.swc4j.outputs;
 
-import com.caoccao.javet.swc4j.ast.BaseSwc4jAstToken;
+import com.caoccao.javet.swc4j.ast.interfaces.ISwc4jAst;
+import com.caoccao.javet.swc4j.ast.interfaces.ISwc4jAstProgram;
+import com.caoccao.javet.swc4j.comments.Swc4jComments;
 import com.caoccao.javet.swc4j.enums.Swc4jMediaType;
+import com.caoccao.javet.swc4j.enums.Swc4jParseMode;
+import com.caoccao.javet.swc4j.jni2rust.Jni2RustClass;
+import com.caoccao.javet.swc4j.jni2rust.Jni2RustFilePath;
+import com.caoccao.javet.swc4j.jni2rust.Jni2RustMethod;
+import com.caoccao.javet.swc4j.jni2rust.Jni2RustParam;
+import com.caoccao.javet.swc4j.tokens.Swc4jToken;
 
 import java.util.List;
 
@@ -26,43 +34,46 @@ import java.util.List;
  *
  * @since 0.1.0
  */
+@Jni2RustClass(filePath = Jni2RustFilePath.Outputs)
 public class Swc4jTranspileOutput extends Swc4jParseOutput {
     /**
      * The Code.
      *
      * @since 0.1.0
      */
-    protected String code;
+    protected final String code;
     /**
      * The Source map.
      *
      * @since 0.1.0
      */
-    protected String sourceMap;
+    protected final String sourceMap;
 
     /**
      * Instantiates a new Swc4j transpile output.
      *
+     * @param program    the program
      * @param code       the code
      * @param mediaType  the media type
-     * @param module     the module
-     * @param script     the script
+     * @param parseMode  the parse mode
      * @param sourceMap  the source map
      * @param sourceText the source text
      * @param tokens     the tokens
      * @since 0.1.0
      */
+    @Jni2RustMethod
     public Swc4jTranspileOutput(
+            ISwc4jAstProgram<? extends ISwc4jAst> program,
             String code,
             Swc4jMediaType mediaType,
-            boolean module,
-            boolean script,
-            String sourceMap,
+            Swc4jParseMode parseMode,
+            @Jni2RustParam(optional = true) String sourceMap,
             String sourceText,
-            List<BaseSwc4jAstToken> tokens) {
-        super(mediaType, module, script, sourceText, tokens);
-        setCode(code);
-        setSourceMap(sourceMap);
+            List<Swc4jToken> tokens,
+            Swc4jComments comments) {
+        super(program, mediaType, parseMode, sourceText, tokens, comments);
+        this.code = code;
+        this.sourceMap = sourceMap;
     }
 
     /**
@@ -83,53 +94,5 @@ public class Swc4jTranspileOutput extends Swc4jParseOutput {
      */
     public String getSourceMap() {
         return sourceMap;
-    }
-
-    /**
-     * Sets code.
-     *
-     * @param code the code
-     * @return the self
-     * @since 0.1.0
-     */
-    public Swc4jTranspileOutput setCode(String code) {
-        this.code = code;
-        return this;
-    }
-
-    @Override
-    public Swc4jTranspileOutput setMediaType(Swc4jMediaType mediaType) {
-        super.setMediaType(mediaType);
-        return this;
-    }
-
-    @Override
-    public Swc4jTranspileOutput setModule(boolean module) {
-        super.setModule(module);
-        return this;
-    }
-
-    @Override
-    public Swc4jTranspileOutput setScript(boolean script) {
-        super.setScript(script);
-        return this;
-    }
-
-    /**
-     * Sets source map.
-     *
-     * @param sourceMap the source map
-     * @return the self
-     * @since 0.1.0
-     */
-    public Swc4jTranspileOutput setSourceMap(String sourceMap) {
-        this.sourceMap = sourceMap;
-        return this;
-    }
-
-    @Override
-    public Swc4jTranspileOutput setSourceText(String sourceText) {
-        super.setSourceText(sourceText);
-        return this;
     }
 }

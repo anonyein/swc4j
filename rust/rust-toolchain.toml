@@ -1,5 +1,5 @@
 [toolchain]
-channel = "1.75.0"
+channel = "1.79.0"
 components = ["clippy", "rustfmt"]
 profile = "minimal"
 target = ["i686-linux-android", "x86_64-linux-android", "armv7-linux-androideabi", "aarch64-linux-android"]

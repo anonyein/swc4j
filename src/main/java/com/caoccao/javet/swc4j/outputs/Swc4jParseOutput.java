@@ -16,8 +16,15 @@
 
 package com.caoccao.javet.swc4j.outputs;
 
-import com.caoccao.javet.swc4j.ast.BaseSwc4jAstToken;
+import com.caoccao.javet.swc4j.ast.interfaces.ISwc4jAst;
+import com.caoccao.javet.swc4j.ast.interfaces.ISwc4jAstProgram;
+import com.caoccao.javet.swc4j.comments.Swc4jComments;
 import com.caoccao.javet.swc4j.enums.Swc4jMediaType;
+import com.caoccao.javet.swc4j.enums.Swc4jParseMode;
+import com.caoccao.javet.swc4j.jni2rust.Jni2RustClass;
+import com.caoccao.javet.swc4j.jni2rust.Jni2RustFilePath;
+import com.caoccao.javet.swc4j.jni2rust.Jni2RustMethod;
+import com.caoccao.javet.swc4j.tokens.Swc4jToken;
 import com.caoccao.javet.swc4j.utils.AssertionUtils;
 
 import java.util.List;
@@ -27,59 +34,80 @@ import java.util.List;
  *
  * @since 0.2.0
  */
+@Jni2RustClass(filePath = Jni2RustFilePath.Outputs)
 public class Swc4jParseOutput {
+    /**
+     * The Comments.
+     *
+     * @since 0.4.0
+     */
+    protected final Swc4jComments comments;
     /**
      * The Media type.
      *
      * @since 0.2.0
      */
-    protected Swc4jMediaType mediaType;
+    protected final Swc4jMediaType mediaType;
     /**
-     * The Module.
+     * The Parse mode.
      *
      * @since 0.2.0
      */
-    protected boolean module;
+    protected final Swc4jParseMode parseMode;
     /**
-     * The Script.
+     * The Ast program.
      *
      * @since 0.2.0
      */
-    protected boolean script;
+    protected final ISwc4jAstProgram<? extends ISwc4jAst> program;
     /**
      * The Source text.
      *
      * @since 0.2.0
      */
-    protected String sourceText;
+    protected final String sourceText;
     /**
      * The Tokens.
      *
      * @since 0.2.0
      */
-    protected List<BaseSwc4jAstToken> tokens;
+    protected final List<Swc4jToken> tokens;
 
     /**
      * Instantiates a new Swc4j parse output.
      *
+     * @param program    the program
      * @param mediaType  the media type
-     * @param module     the module
-     * @param script     the script
+     * @param parseMode  the parse mode
      * @param sourceText the source text
      * @param tokens     the tokens
+     * @param comments   the comments
      * @since 0.2.0
      */
+    @Jni2RustMethod
     public Swc4jParseOutput(
+            ISwc4jAstProgram<? extends ISwc4jAst> program,
             Swc4jMediaType mediaType,
-            boolean module,
-            boolean script,
+            Swc4jParseMode parseMode,
             String sourceText,
-            List<BaseSwc4jAstToken> tokens) {
-        setMediaType(mediaType);
-        setModule(module);
-        setScript(script);
-        setSourceText(sourceText);
+            List<Swc4jToken> tokens,
+            Swc4jComments comments) {
+        this.comments = comments;
+        this.mediaType = AssertionUtils.notNull(mediaType, "Media type");
+        this.parseMode = AssertionUtils.notNull(parseMode, "Parse mode");
+        this.program = program;
+        this.sourceText = AssertionUtils.notNull(sourceText, "Source text");
         this.tokens = tokens;
+    }
+
+    /**
+     * Gets comments.
+     *
+     * @return the comments
+     * @since 0.4.0
+     */
+    public Swc4jComments getComments() {
+        return comments;
     }
 
     /**
@@ -90,6 +118,26 @@ public class Swc4jParseOutput {
      */
     public Swc4jMediaType getMediaType() {
         return mediaType;
+    }
+
+    /**
+     * Gets parse mode.
+     *
+     * @return the parse mode
+     * @since 0.2.0
+     */
+    public Swc4jParseMode getParseMode() {
+        return parseMode;
+    }
+
+    /**
+     * Gets ast program.
+     *
+     * @return the ast program
+     * @since 0.2.0
+     */
+    public ISwc4jAstProgram<? extends ISwc4jAst> getProgram() {
+        return program;
     }
 
     /**
@@ -108,75 +156,7 @@ public class Swc4jParseOutput {
      * @return the tokens
      * @since 0.2.0
      */
-    public List<BaseSwc4jAstToken> getTokens() {
+    public List<Swc4jToken> getTokens() {
         return tokens;
-    }
-
-    /**
-     * Gets if this source is a module.
-     *
-     * @return true : module, false : not module
-     * @since 0.2.0
-     */
-    public boolean isModule() {
-        return module;
-    }
-
-    /**
-     * Gets if this source is a script.
-     *
-     * @return true : script, false : not script
-     * @since 0.2.0
-     */
-    public boolean isScript() {
-        return script;
-    }
-
-    /**
-     * Sets media type.
-     *
-     * @param mediaType the media type
-     * @return the media type
-     * @since 0.2.0
-     */
-    public Swc4jParseOutput setMediaType(Swc4jMediaType mediaType) {
-        this.mediaType = AssertionUtils.notNull(mediaType, "Media type");
-        return this;
-    }
-
-    /**
-     * Sets module.
-     *
-     * @param module the module
-     * @return the self
-     * @since 0.2.0
-     */
-    public Swc4jParseOutput setModule(boolean module) {
-        this.module = module;
-        return this;
-    }
-
-    /**
-     * Sets script.
-     *
-     * @param script the script
-     * @return the self
-     * @since 0.2.0
-     */
-    public Swc4jParseOutput setScript(boolean script) {
-        this.script = script;
-        return this;
-    }
-
-    /**
-     * Sets source text.
-     *
-     * @param sourceText the source text
-     * @return the self
-     * @since 0.2.0
-     */
-    public Swc4jParseOutput setSourceText(String sourceText) {
-        this.sourceText = sourceText;
-        return this;
     }
 }

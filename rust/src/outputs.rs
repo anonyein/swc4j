@@ -15,30 +15,33 @@
 * limitations under the License.
 */
 
+use anyhow::Result;
+use deno_ast::swc::ast::*;
+use deno_ast::swc::parser::token::TokenAndSpan;
+use deno_ast::{MultiThreadedComments, ParsedSource, TranspileResult};
 use jni::objects::{GlobalRef, JMethodID, JObject};
-use jni::sys::jvalue;
 use jni::JNIEnv;
 
-use deno_ast::swc::parser::token::TokenAndSpan;
-use deno_ast::{ParsedSource, TranspiledSource};
-
-use std::ptr::null_mut;
 use std::sync::Arc;
 
-use crate::ast_utils;
-use crate::converter;
+use crate::comment_utils::*;
 use crate::enums::*;
-use crate::jni_utils::ToJniType;
+use crate::jni_utils::*;
 use crate::options::*;
+use crate::span_utils::{ByteToIndexMap, RegisterWithMap, ToJavaWithMap};
+use crate::token_utils;
 
-struct JavaParseOutput {
+/* JavaSwc4jParseOutput Begin */
+#[allow(dead_code)]
+struct JavaSwc4jParseOutput {
   class: GlobalRef,
-  method_constructor: JMethodID,
+  method_construct: JMethodID,
 }
-unsafe impl Send for JavaParseOutput {}
-unsafe impl Sync for JavaParseOutput {}
+unsafe impl Send for JavaSwc4jParseOutput {}
+unsafe impl Sync for JavaSwc4jParseOutput {}
 
-impl JavaParseOutput {
+#[allow(dead_code)]
+impl JavaSwc4jParseOutput {
   pub fn new<'local>(env: &mut JNIEnv<'local>) -> Self {
     let class = env
       .find_class("com/caoccao/javet/swc4j/outputs/Swc4jParseOutput")
@@ -46,56 +49,125 @@ impl JavaParseOutput {
     let class = env
       .new_global_ref(class)
       .expect("Couldn't globalize class Swc4jParseOutput");
-    let method_constructor = env
+    let method_construct = env
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/enums/Swc4jMediaType;ZZLjava/lang/String;Ljava/util/List;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstProgram;Lcom/caoccao/javet/swc4j/enums/Swc4jMediaType;Lcom/caoccao/javet/swc4j/enums/Swc4jParseMode;Ljava/lang/String;Ljava/util/List;Lcom/caoccao/javet/swc4j/comments/Swc4jComments;)V",
       )
-      .expect("Couldn't find method Swc4jParseOutput.Swc4jParseOutput");
-    JavaParseOutput {
+      .expect("Couldn't find method Swc4jParseOutput::new");
+    JavaSwc4jParseOutput {
       class,
-      method_constructor,
+      method_construct,
     }
   }
 
-  pub fn create<'local, 'a>(&self, env: &mut JNIEnv<'local>, parse_output: &ParseOutput) -> JObject<'a>
+  pub fn construct<'local, 'a>(
+    &self,
+    env: &mut JNIEnv<'local>,
+    program: &JObject<'_>,
+    media_type: &JObject<'_>,
+    parse_mode: &JObject<'_>,
+    source_text: &str,
+    tokens: &JObject<'_>,
+    comments: &JObject<'_>,
+  ) -> Result<JObject<'a>>
   where
     'local: 'a,
   {
-    let java_media_type = unsafe { JAVA_MEDIA_TYPE.as_ref().unwrap() };
-    let media_type = java_media_type.parse(env, parse_output.media_type.get_id());
-    let module = jvalue {
-      z: if parse_output.module { 1u8 } else { 0u8 },
-    };
-    let script = jvalue {
-      z: if parse_output.script { 1u8 } else { 0u8 },
-    };
-    let source_text = jvalue {
-      l: converter::string_to_jstring(env, &parse_output.source_text).as_raw(),
-    };
-    let tokens =
-      ast_utils::token_and_spans_to_java_list(env, &parse_output.source_text.to_string(), parse_output.tokens.clone());
-    unsafe {
-      env
-        .new_object_unchecked(
-          &self.class,
-          self.method_constructor,
-          &[media_type, module, script, source_text, tokens],
-        )
-        .expect("Couldn't create Swc4jParseOutput")
-    }
+    let program = object_to_jvalue!(program);
+    let media_type = object_to_jvalue!(media_type);
+    let parse_mode = object_to_jvalue!(parse_mode);
+    let java_source_text = string_to_jstring!(env, &source_text);
+    let source_text = object_to_jvalue!(java_source_text);
+    let tokens = object_to_jvalue!(tokens);
+    let comments = object_to_jvalue!(comments);
+    let return_value = call_as_construct!(
+        env,
+        &self.class,
+        self.method_construct,
+        &[program, media_type, parse_mode, source_text, tokens, comments],
+        "Swc4jParseOutput construct()"
+      )?;
+    delete_local_ref!(env, java_source_text);
+    Ok(return_value)
   }
 }
+/* JavaSwc4jParseOutput End */
 
-struct JavaTranspileOutput {
+/* JavaSwc4jTransformOutput Begin */
+#[allow(dead_code)]
+struct JavaSwc4jTransformOutput {
   class: GlobalRef,
-  method_constructor: JMethodID,
+  method_construct: JMethodID,
 }
-unsafe impl Send for JavaTranspileOutput {}
-unsafe impl Sync for JavaTranspileOutput {}
+unsafe impl Send for JavaSwc4jTransformOutput {}
+unsafe impl Sync for JavaSwc4jTransformOutput {}
 
-impl JavaTranspileOutput {
+#[allow(dead_code)]
+impl JavaSwc4jTransformOutput {
+  pub fn new<'local>(env: &mut JNIEnv<'local>) -> Self {
+    let class = env
+      .find_class("com/caoccao/javet/swc4j/outputs/Swc4jTransformOutput")
+      .expect("Couldn't find class Swc4jTransformOutput");
+    let class = env
+      .new_global_ref(class)
+      .expect("Couldn't globalize class Swc4jTransformOutput");
+    let method_construct = env
+      .get_method_id(
+        &class,
+        "<init>",
+        "(Ljava/lang/String;Lcom/caoccao/javet/swc4j/enums/Swc4jMediaType;Lcom/caoccao/javet/swc4j/enums/Swc4jParseMode;Ljava/lang/String;)V",
+      )
+      .expect("Couldn't find method Swc4jTransformOutput::new");
+    JavaSwc4jTransformOutput {
+      class,
+      method_construct,
+    }
+  }
+
+  pub fn construct<'local, 'a>(
+    &self,
+    env: &mut JNIEnv<'local>,
+    code: &str,
+    media_type: &JObject<'_>,
+    parse_mode: &JObject<'_>,
+    source_map: &Option<String>,
+  ) -> Result<JObject<'a>>
+  where
+    'local: 'a,
+  {
+    let java_code = string_to_jstring!(env, &code);
+    let code = object_to_jvalue!(java_code);
+    let media_type = object_to_jvalue!(media_type);
+    let parse_mode = object_to_jvalue!(parse_mode);
+    let java_source_map = optional_string_to_jstring!(env, &source_map);
+    let source_map = object_to_jvalue!(java_source_map);
+    let return_value = call_as_construct!(
+        env,
+        &self.class,
+        self.method_construct,
+        &[code, media_type, parse_mode, source_map],
+        "Swc4jTransformOutput construct()"
+      )?;
+    delete_local_ref!(env, java_code);
+    delete_local_ref!(env, java_source_map);
+    Ok(return_value)
+  }
+}
+/* JavaSwc4jTransformOutput End */
+
+/* JavaSwc4jTranspileOutput Begin */
+#[allow(dead_code)]
+struct JavaSwc4jTranspileOutput {
+  class: GlobalRef,
+  method_construct: JMethodID,
+}
+unsafe impl Send for JavaSwc4jTranspileOutput {}
+unsafe impl Sync for JavaSwc4jTranspileOutput {}
+
+#[allow(dead_code)]
+impl JavaSwc4jTranspileOutput {
   pub fn new<'local>(env: &mut JNIEnv<'local>) -> Self {
     let class = env
       .find_class("com/caoccao/javet/swc4j/outputs/Swc4jTranspileOutput")
@@ -103,154 +175,326 @@ impl JavaTranspileOutput {
     let class = env
       .new_global_ref(class)
       .expect("Couldn't globalize class Swc4jTranspileOutput");
-    let method_constructor = env
+    let method_construct = env
       .get_method_id(
         &class,
         "<init>",
-        "(Ljava/lang/String;Lcom/caoccao/javet/swc4j/enums/Swc4jMediaType;ZZLjava/lang/String;Ljava/lang/String;Ljava/util/List;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstProgram;Ljava/lang/String;Lcom/caoccao/javet/swc4j/enums/Swc4jMediaType;Lcom/caoccao/javet/swc4j/enums/Swc4jParseMode;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/caoccao/javet/swc4j/comments/Swc4jComments;)V",
       )
-      .expect("Couldn't find method Swc4jTranspileOutput.Swc4jTranspileOutput");
-    JavaTranspileOutput {
+      .expect("Couldn't find method Swc4jTranspileOutput::new");
+    JavaSwc4jTranspileOutput {
       class,
-      method_constructor,
+      method_construct,
     }
   }
 
-  pub fn create<'local, 'a>(&self, env: &mut JNIEnv<'local>, transpile_output: &TranspileOutput) -> JObject<'a>
+  pub fn construct<'local, 'a>(
+    &self,
+    env: &mut JNIEnv<'local>,
+    program: &JObject<'_>,
+    code: &str,
+    media_type: &JObject<'_>,
+    parse_mode: &JObject<'_>,
+    source_map: &Option<String>,
+    source_text: &str,
+    tokens: &JObject<'_>,
+    comments: &JObject<'_>,
+  ) -> Result<JObject<'a>>
   where
     'local: 'a,
   {
-    let code = jvalue {
-      l: converter::string_to_jstring(env, &transpile_output.code).as_raw(),
-    };
-    let java_media_type = unsafe { JAVA_MEDIA_TYPE.as_ref().unwrap() };
-    let media_type = java_media_type.parse(env, transpile_output.media_type.get_id());
-    let module = jvalue {
-      z: if transpile_output.module { 1u8 } else { 0u8 },
-    };
-    let script = jvalue {
-      z: if transpile_output.script { 1u8 } else { 0u8 },
-    };
-    let source_map = jvalue {
-      l: match &transpile_output.source_map {
-        Some(s) => converter::string_to_jstring(env, &s).as_raw(),
-        None => null_mut(),
-      },
-    };
-    let source_text = jvalue {
-      l: converter::string_to_jstring(env, &transpile_output.source_text).as_raw(),
-    };
-    let tokens = ast_utils::token_and_spans_to_java_list(
-      env,
-      &transpile_output.source_text.to_string(),
-      transpile_output.tokens.clone(),
-    );
-    unsafe {
-      env
-        .new_object_unchecked(
-          &self.class,
-          self.method_constructor,
-          &[code, media_type, module, script, source_map, source_text, tokens],
-        )
-        .expect("Couldn't create Swc4jTranspileOutput")
-    }
+    let program = object_to_jvalue!(program);
+    let java_code = string_to_jstring!(env, &code);
+    let code = object_to_jvalue!(java_code);
+    let media_type = object_to_jvalue!(media_type);
+    let parse_mode = object_to_jvalue!(parse_mode);
+    let java_source_map = optional_string_to_jstring!(env, &source_map);
+    let source_map = object_to_jvalue!(java_source_map);
+    let java_source_text = string_to_jstring!(env, &source_text);
+    let source_text = object_to_jvalue!(java_source_text);
+    let tokens = object_to_jvalue!(tokens);
+    let comments = object_to_jvalue!(comments);
+    let return_value = call_as_construct!(
+        env,
+        &self.class,
+        self.method_construct,
+        &[program, code, media_type, parse_mode, source_map, source_text, tokens, comments],
+        "Swc4jTranspileOutput construct()"
+      )?;
+    delete_local_ref!(env, java_code);
+    delete_local_ref!(env, java_source_map);
+    delete_local_ref!(env, java_source_text);
+    Ok(return_value)
   }
 }
+/* JavaSwc4jTranspileOutput End */
 
-static mut JAVA_PARSE_OUTPUT: Option<JavaParseOutput> = None;
-static mut JAVA_TRANSPILE_OUTPUT: Option<JavaTranspileOutput> = None;
+static mut JAVA_PARSE_OUTPUT: Option<JavaSwc4jParseOutput> = None;
+static mut JAVA_TRANSFORM_OUTPUT: Option<JavaSwc4jTransformOutput> = None;
+static mut JAVA_TRANSPILE_OUTPUT: Option<JavaSwc4jTranspileOutput> = None;
 
 pub fn init<'local>(env: &mut JNIEnv<'local>) {
+  log::debug!("init()");
   unsafe {
-    JAVA_PARSE_OUTPUT = Some(JavaParseOutput::new(env));
-    JAVA_TRANSPILE_OUTPUT = Some(JavaTranspileOutput::new(env));
+    JAVA_PARSE_OUTPUT = Some(JavaSwc4jParseOutput::new(env));
+    JAVA_TRANSFORM_OUTPUT = Some(JavaSwc4jTransformOutput::new(env));
+    JAVA_TRANSPILE_OUTPUT = Some(JavaSwc4jTranspileOutput::new(env));
   }
 }
 
 #[derive(Debug)]
 pub struct ParseOutput {
+  pub comments: Option<MultiThreadedComments>,
   pub media_type: MediaType,
-  pub module: bool,
-  pub script: bool,
+  pub parse_mode: ParseMode,
+  pub program: Option<Arc<Program>>,
   pub source_text: String,
   pub tokens: Option<Arc<Vec<TokenAndSpan>>>,
 }
 
 impl ParseOutput {
-  pub fn new(parse_options: &ParseOptions, parsed_source: &ParsedSource) -> ParseOutput {
+  pub fn new(parse_options: &ParseOptions, parsed_source: &ParsedSource) -> Self {
+    let comments = if parse_options.capture_comments {
+      Some(parsed_source.comments().clone())
+    } else {
+      None
+    };
     let media_type = parsed_source.media_type();
-    let module = parsed_source.is_module();
-    let script = parsed_source.is_script();
-    let source_text = parsed_source.text_info().text().to_string();
+    let parse_mode = if parsed_source.is_module() {
+      ParseMode::Module
+    } else {
+      ParseMode::Script
+    };
+    let program = if parse_options.capture_ast {
+      Some(parsed_source.program())
+    } else {
+      None
+    };
+    let source_text = parsed_source.text().to_string();
     let tokens = if parse_options.capture_tokens {
       Some(Arc::new(parsed_source.tokens().to_vec()))
     } else {
       None
     };
     ParseOutput {
+      comments,
       media_type,
-      module,
-      script,
+      parse_mode,
+      program,
       source_text,
       tokens,
     }
   }
+
+  pub fn get_byte_to_index_map(&self) -> ByteToIndexMap {
+    // Register the keys
+    let mut map = ByteToIndexMap::new();
+    self.comments.as_ref().map(|comments| {
+      comments.leading_map().iter().for_each(|(key, value)| {
+        map.register_by_byte_pos(&key);
+        value.iter().for_each(|comment| map.register_by_span(&comment.span));
+      });
+      comments.trailing_map().iter().for_each(|(key, value)| {
+        map.register_by_byte_pos(&key);
+        value.iter().for_each(|comment| map.register_by_span(&comment.span));
+      });
+    });
+    self.program.as_ref().map(|program| program.register_with_map(&mut map));
+    self.tokens.as_ref().map(|token_and_spans| {
+      token_and_spans.iter().for_each(|token_and_span| {
+        map.register_by_span(&token_and_span.span);
+      })
+    });
+    map.update_by_str(self.source_text.as_str());
+    map
+  }
 }
 
-impl ToJniType for ParseOutput {
-  fn to_jni_type<'local, 'a>(&self, env: &mut JNIEnv<'local>) -> JObject<'a>
+impl ToJava for ParseOutput {
+  fn to_java<'local, 'a>(&self, env: &mut JNIEnv<'local>) -> Result<JObject<'a>>
   where
     'local: 'a,
   {
-    unsafe { JAVA_PARSE_OUTPUT.as_ref().unwrap() }.create(env, &self)
+    let byte_to_index_map = self.get_byte_to_index_map();
+    let java_program = self.program.as_ref().map_or(Ok(Default::default()), |program| {
+      program.to_java_with_map(env, &byte_to_index_map)
+    })?;
+    let java_media_type = self.media_type.to_java(env)?;
+    let java_parse_mode = self.parse_mode.to_java(env)?;
+    let source_text = self.source_text.as_str();
+    let java_tokens =
+      token_utils::token_and_spans_to_java_list(env, &byte_to_index_map, &source_text, self.tokens.clone())?;
+    let java_comments = self.comments.as_ref().map_or(Ok(Default::default()), |comments| {
+      comments_new(env, comments, &byte_to_index_map)
+    })?;
+    let return_value = unsafe { JAVA_PARSE_OUTPUT.as_ref().unwrap() }.construct(
+      env,
+      &java_program,
+      &java_media_type,
+      &java_parse_mode,
+      source_text,
+      &java_tokens,
+      &java_comments,
+    );
+    delete_local_ref!(env, java_program);
+    delete_local_ref!(env, java_media_type);
+    delete_local_ref!(env, java_parse_mode);
+    delete_local_ref!(env, java_tokens);
+    delete_local_ref!(env, java_comments);
+    return_value
+  }
+}
+
+#[derive(Debug)]
+pub struct TransformOutput {
+  pub code: String,
+  pub media_type: MediaType,
+  pub parse_mode: ParseMode,
+  pub source_map: Option<String>,
+}
+
+impl TransformOutput {
+  pub fn new(parsed_source: &ParsedSource, code: String, source_map: Option<String>) -> Self {
+    let media_type = parsed_source.media_type();
+    let parse_mode = if parsed_source.is_module() {
+      ParseMode::Module
+    } else {
+      ParseMode::Script
+    };
+    TransformOutput {
+      code,
+      media_type,
+      parse_mode,
+      source_map,
+    }
+  }
+}
+
+impl ToJava for TransformOutput {
+  fn to_java<'local, 'a>(&self, env: &mut JNIEnv<'local>) -> Result<JObject<'a>>
+  where
+    'local: 'a,
+  {
+    let code = self.code.as_str();
+    let java_media_type = self.media_type.to_java(env)?;
+    let java_parse_mode = self.parse_mode.to_java(env)?;
+    let optional_source_map = &self.source_map;
+    let return_value = unsafe { JAVA_TRANSFORM_OUTPUT.as_ref().unwrap() }.construct(
+      env,
+      code,
+      &java_media_type,
+      &java_parse_mode,
+      &optional_source_map,
+    );
+    delete_local_ref!(env, java_media_type);
+    delete_local_ref!(env, java_parse_mode);
+    return_value
   }
 }
 
 #[derive(Debug)]
 pub struct TranspileOutput {
   pub code: String,
-  pub media_type: MediaType,
-  pub module: bool,
-  pub script: bool,
+  pub parse_output: ParseOutput,
   pub source_map: Option<String>,
-  pub source_text: String,
-  pub tokens: Option<Arc<Vec<TokenAndSpan>>>,
 }
 
 impl TranspileOutput {
   pub fn new(
     transpile_options: &TranspileOptions,
     parsed_source: &ParsedSource,
-    transpiled_source: &TranspiledSource,
-  ) -> TranspileOutput {
-    let code = transpiled_source.text.to_owned();
+    transpile_result: &TranspileResult,
+  ) -> Self {
+    let comments = if transpile_options.capture_comments {
+      Some(parsed_source.comments().clone())
+    } else {
+      None
+    };
+    let emitted_source = transpile_result.clone().into_source();
+    let code = String::from_utf8(emitted_source.source).unwrap_or_default();
     let media_type = parsed_source.media_type();
-    let module = parsed_source.is_module();
-    let script = parsed_source.is_script();
-    let source_map = transpiled_source.source_map.to_owned();
-    let source_text = parsed_source.text_info().text().to_string();
+    let parse_mode = if parsed_source.is_module() {
+      ParseMode::Module
+    } else {
+      ParseMode::Script
+    };
+    let program = if transpile_options.capture_ast {
+      Some(parsed_source.program())
+    } else {
+      None
+    };
+    let source_map = emitted_source
+      .source_map
+      .map(|source_map| String::from_utf8(source_map).unwrap_or_default());
+    let source_text = parsed_source.text().to_string();
     let tokens = if transpile_options.capture_tokens {
       Some(Arc::new(parsed_source.tokens().to_vec()))
     } else {
       None
     };
-    TranspileOutput {
-      code,
+    let parse_output = ParseOutput {
+      comments,
       media_type,
-      module,
-      script,
-      source_map,
+      parse_mode,
+      program,
       source_text,
       tokens,
+    };
+    TranspileOutput {
+      code,
+      parse_output,
+      source_map,
     }
   }
 }
 
-impl ToJniType for TranspileOutput {
-  fn to_jni_type<'local, 'a>(&self, env: &mut JNIEnv<'local>) -> JObject<'a>
+impl ToJava for TranspileOutput {
+  fn to_java<'local, 'a>(&self, env: &mut JNIEnv<'local>) -> Result<JObject<'a>>
   where
     'local: 'a,
   {
-    unsafe { JAVA_TRANSPILE_OUTPUT.as_ref().unwrap() }.create(env, &self)
+    let byte_to_index_map = self.parse_output.get_byte_to_index_map();
+    let java_program = self
+      .parse_output
+      .program
+      .as_ref()
+      .map_or(Ok(Default::default()), |program| {
+        program.to_java_with_map(env, &byte_to_index_map)
+      })?;
+    let code = self.code.as_str();
+    let java_media_type = self.parse_output.media_type.to_java(env)?;
+    let java_parse_mode = self.parse_output.parse_mode.to_java(env)?;
+    let optional_source_map = &self.source_map;
+    let source_text = self.parse_output.source_text.as_str();
+    let java_tokens = token_utils::token_and_spans_to_java_list(
+      env,
+      &byte_to_index_map,
+      &source_text,
+      self.parse_output.tokens.clone(),
+    )?;
+    let java_comments = self
+      .parse_output
+      .comments
+      .as_ref()
+      .map_or(Ok(Default::default()), |comments| {
+        comments_new(env, comments, &byte_to_index_map)
+      })?;
+    let return_value = unsafe { JAVA_TRANSPILE_OUTPUT.as_ref().unwrap() }.construct(
+      env,
+      &java_program,
+      code,
+      &java_media_type,
+      &java_parse_mode,
+      &optional_source_map,
+      source_text,
+      &java_tokens,
+      &java_comments,
+    );
+    delete_local_ref!(env, java_program);
+    delete_local_ref!(env, java_media_type);
+    delete_local_ref!(env, java_parse_mode);
+    delete_local_ref!(env, java_tokens);
+    delete_local_ref!(env, java_comments);
+    return_value
   }
 }

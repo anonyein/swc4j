@@ -21,18 +21,22 @@ import com.caoccao.javet.interop.V8Host;
 import com.caoccao.javet.interop.V8Runtime;
 import com.caoccao.javet.swc4j.Swc4j;
 import com.caoccao.javet.swc4j.enums.Swc4jMediaType;
+import com.caoccao.javet.swc4j.enums.Swc4jSourceMapOption;
 import com.caoccao.javet.swc4j.exceptions.Swc4jCoreException;
 import com.caoccao.javet.swc4j.options.Swc4jTranspileOptions;
 import com.caoccao.javet.swc4j.outputs.Swc4jTranspileOutput;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class Tutorial01RunTypeScript {
-    public static void main(String[] args) throws Swc4jCoreException, JavetException {
+    public static void main(String[] args) throws Swc4jCoreException, JavetException, MalformedURLException {
         // Create an instance of swc4j.
         Swc4j swc4j = new Swc4j();
         // Prepare a simple TypeScript code snippet.
         String code = "function add(a:number, b:number) { return a+b; }";
         // Prepare a script name.
-        String specifier = "file:///abc.ts";
+        URL specifier = new URL("file:///abc.ts");
         // Prepare an option with script name and media type.
         Swc4jTranspileOptions options = new Swc4jTranspileOptions()
                 .setSpecifier(specifier)
@@ -55,7 +59,7 @@ public class Tutorial01RunTypeScript {
                             "add", 1, 2));
         }
         // Remove the inline source map.
-        options.setInlineSourceMap(false).setSourceMap(true);
+        options.setSourceMap(Swc4jSourceMapOption.Separate);
         output = swc4j.transpile(code, options);
         // Print the transpiled code.
         System.out.println("/*********************************************");

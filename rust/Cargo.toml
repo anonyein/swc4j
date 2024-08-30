@@ -1,14 +1,35 @@
 [package]
 name = "swc4j"
-version = "0.2.0"
+version = "1.0.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-crate_type = ["cdylib", "rlib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-debug_print = "1.0.0"
-deno_ast = { version = "1.0.1", features = ["module_specifier", "transpiling", "transforms"] }
+base64 = "0.22.1"
+log = "0.4.22"
+env_logger = "0.11.5"
+deno_ast = { version = "0.41.1", features = [
+  "bundler",
+  "cjs",
+  "codegen",
+  "compat",
+  "dep_analysis",
+  "emit",
+  "proposal",
+  "react",
+  "scopes",
+  "sourcemap",
+  "transforms",
+  "transpiling",
+  "typescript",
+  "utils",
+  "view",
+  "visit",
+] }
 jni = "0.21.1"
+num-bigint = "0.4.6"
+anyhow = "1.0.86"

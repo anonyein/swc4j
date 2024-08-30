@@ -25,5 +25,7 @@ final class Swc4jNative {
 
     static native Object coreParse(String code, Object options);
 
+    static native Object coreTransform(String code, Object options);
+
     static native Object coreTranspile(String code, Object options);
 }

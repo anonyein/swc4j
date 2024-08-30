@@ -22,6 +22,8 @@ object Config {
     const val VERSION = Versions.SWC4J
     const val URL = "https://github.com/caoccao/swc4j"
 
+    const val MODULE_NAME = "$GROUP_ID.$NAME"
+
     object Pom {
         const val ARTIFACT_ID = "swc4j"
         const val DESCRIPTION =
@@ -63,9 +65,9 @@ object Config {
 
     object Versions {
         const val JAVA_VERSION = "1.8"
-        const val JAVET = "3.1.0"
+        const val JAVET = "3.1.4"
         const val JUNIT = "5.10.1"
-        const val SWC4J = "0.2.0"
+        const val SWC4J = "1.0.0"
     }
 }
 
@@ -110,6 +112,7 @@ afterEvaluate {
     tasks.withType(JavaCompile::class) {
         options.compilerArgs.add("-Xlint:unchecked")
         options.compilerArgs.add("-Xlint:deprecation")
+        options.compilerArgs.add("-parameters")
     }
 }
 
@@ -130,7 +133,7 @@ task<Exec>("buildJNIHeaders") {
 
 tasks.jar {
     manifest {
-        attributes["Automatic-Module-Name"] = Config.GROUP_ID
+        attributes["Automatic-Module-Name"] = Config.MODULE_NAME
     }
 }
 
