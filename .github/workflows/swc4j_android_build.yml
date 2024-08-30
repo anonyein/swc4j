@@ -56,6 +56,7 @@ jobs:
         RUSTFLAGS: -Awarnings
       run: |
         cd rust
+        rustup target add ${{ matrix.target }}
         cargo build -r --target ${{ matrix.target }}
         deno run --allow-all ../scripts/ts/copy_swc4j_lib.ts -o ${{ matrix.os }} -a ${{ matrix.arch }}
 
