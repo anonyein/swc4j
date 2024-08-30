@@ -24,7 +24,7 @@ jobs:
           - image: ubuntu-latest
             os: android 
             arch: arm64
-            ndk_arch: aarch64
+            ndk-arch: aarch64
             ext: .so
             channel: stable
             target: aarch64-linux-android
@@ -68,7 +68,7 @@ jobs:
         cargo build -r --target ${{ matrix.target }}
         export CC=${{ matrix.target }}24-clang
         export CXX=${{ matrix.target }}24-clang++
-        export RUSTFLAGS="-L ${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/lib/linux/${{ ndk_arch }} -L ${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.target }}/24 -C target-feature=+crt-static"
+        export RUSTFLAGS="-L ${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/lib/linux/${{ ndk-arch }} -L ${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.target }}/24 -C target-feature=+crt-static"
         deno run --allow-all ../scripts/ts/copy_swc4j_lib.ts -o ${{ matrix.os }} -a ${{ matrix.arch }}
 
     - name: Setup JDK 8
