@@ -65,11 +65,10 @@ jobs:
       run: |
         cd rust
         # sudo apt-get install binutils
-        cp ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}-ar
         rustup target add ${{ matrix.target }}
         export CC=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang
         export CXX=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang++
-        export AR=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}-ar
+        export AR=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
         export RUSTFLAGS="-L ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/lib/linux/${{ matrix.ndk-arch }} -L ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.target }}/24 -C target-feature=+crt-static"
         # cargo build --release --target ${{ matrix.target }} --config target.${{ matrix.target }}.linker="'${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang'"
         cargo build -r --target ${{ matrix.target }}
