@@ -71,7 +71,7 @@ jobs:
         export AR=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
         export RUSTFLAGS="-L ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/lib/linux/${{ matrix.ndk-arch }} -L ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.target }}/24 -C target-feature=+crt-static"
         # cargo build --release --target ${{ matrix.target }} --config target.${{ matrix.target }}.linker="'${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang'"
-        cargo build -r --target ${{ matrix.target }}
+        cargo rustc --crate-type cdylib build -r --target ${{ matrix.target }}
         deno run --allow-all ../scripts/ts/copy_swc4j_lib.ts -o ${{ matrix.os }} -a ${{ matrix.arch }}
 
     - name: Setup JDK 8
