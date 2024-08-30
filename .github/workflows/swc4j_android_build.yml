@@ -46,6 +46,9 @@ jobs:
         target: ${{ matrix.target }}
         toolchain: ${{ matrix.channel }}
 
+    - name: cargo check
+      run: cargo check -p ndk-sys --all-targets --all-features --target ${{ matrix.target }}
+
     - name: Setup Deno
       uses: denoland/setup-deno@v1
       with:
