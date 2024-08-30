@@ -24,6 +24,7 @@ jobs:
           - image: ubuntu-latest
             os: android 
             arch: arm64
+            ndk_arch: aarch64
             ext: .so
             channel: stable
             target: aarch64-linux-android
@@ -39,6 +40,13 @@ jobs:
 
     - name: Checkout the code
       uses: actions/checkout@v4
+
+    - name: Setup Android NDK
+      id: setup-ndk
+      uses: nttld/setup-ndk@v1
+      with:
+        ndk-version: r27
+        local-cache: false
 
     - name: Installing Rust ${{ matrix.channel }} w/ ${{ matrix.target }}
       uses: dtolnay/rust-toolchain@master
@@ -58,6 +66,9 @@ jobs:
         cd rust
         rustup target add ${{ matrix.target }}
         cargo build -r --target ${{ matrix.target }}
+        export CC=${{ matrix.target }}24-clang
+        export CXX=${{ matrix.target }}24-clang++
+        export RUSTFLAGS="-L ${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/lib/linux/${{ ndk_arch }} -L ${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.target }}/24 -C target-feature=+crt-static"
         deno run --allow-all ../scripts/ts/copy_swc4j_lib.ts -o ${{ matrix.os }} -a ${{ matrix.arch }}
 
     - name: Setup JDK 8
