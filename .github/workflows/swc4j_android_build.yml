@@ -64,7 +64,8 @@ jobs:
         RUSTFLAGS: -Awarnings
       run: |
         cd rust
-        sudo apt-get install binutils
+        # sudo apt-get install binutils
+        cp ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}-ar
         rustup target add ${{ matrix.target }}
         export CC=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang
         export CXX=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang++
