@@ -33,6 +33,9 @@ jobs:
     runs-on: ${{ matrix.image }}
 
     steps:
+    - name: Install sudo package
+      run: apt update && apt install sudo
+      
     - name: Set git to use LF
       run: |
         git config --global core.autocrlf false
