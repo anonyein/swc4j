@@ -71,13 +71,20 @@ jobs:
       with:
         deno-version: vx.x.x
 
-    - name: Cargo Build and Test
+    - name: Cargo Build Debug
       env:
         RUSTFLAGS: -Awarnings
       run: |
         cd rust
         rustup target add ${{ matrix.target }}
         cargo ndk -t ${{ matrix.arch }} -o ./jniLibs build
+        
+    - name: Upload the libs
+      uses: actions/upload-artifact@v4
+      with:
+        name: swc4j-${{ matrix.os }}-${{ matrix.arch }}-${{ env.SWC4J_VERSION }}
+        path: |
+          ./jniLibs
         # # sudo apt-get install binutils
         # export PATH=$PATH:${{ steps.setup-ndk.outputs.ndk-path }}
         # export PATH=$PATH:${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
@@ -90,6 +97,13 @@ jobs:
         # export RUSTFLAGS="-L ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/lib/linux/${{ matrix.ndk-arch }} -L ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.target }}/24 -C target-feature=+crt-static"
         # cargo build --release --target ${{ matrix.target }} --config target.${{ matrix.target }}.linker="'${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang'"
         # # cargo build -r --target ${{ matrix.target }}
+    - name: Cargo Build and Test
+      env:
+        RUSTFLAGS: -Awarnings
+      run: |
+        cd rust
+        rustup target add ${{ matrix.target }}
+        cargo ndk -t ${{ matrix.arch }} -o ./jniLibs build --release
         deno run --allow-all ../scripts/ts/copy_swc4j_lib.ts -o ${{ matrix.os }} -a ${{ matrix.deno-arch }}
 
     - name: Setup JDK 8
