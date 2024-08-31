@@ -77,7 +77,7 @@ jobs:
       run: |
         cd rust
         rustup target add ${{ matrix.target }}
-        cargo ndk -t ${{ matrix.arch }} -o ./jniLibs build --release
+        cargo ndk -t ${{ matrix.arch }} -o ./jniLibs build
         # # sudo apt-get install binutils
         # export PATH=$PATH:${{ steps.setup-ndk.outputs.ndk-path }}
         # export PATH=$PATH:${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
