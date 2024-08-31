@@ -17,7 +17,7 @@
 
 use anyhow::Result;
 use jni::objects::{JClass, JObject, JString};
-use jni::sys::{jint, jobject, jstring, JNI_VERSION_1_8};
+use jni::sys::{jint, jobject, jstring, JNI_VERSION_1_6};
 use jni::{JNIEnv, JavaVM};
 use jni_utils::FromJava;
 
@@ -52,7 +52,7 @@ pub extern "system" fn JNI_OnLoad<'local>(java_vm: JavaVM, _: c_void) -> jint {
   plugin_utils::init(&mut env);
   span_utils::init(&mut env);
   token_utils::init(&mut env);
-  JNI_VERSION_1_8
+  JNI_VERSION_1_6
 }
 
 #[no_mangle]
