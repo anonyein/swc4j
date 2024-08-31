@@ -79,12 +79,12 @@ jobs:
         rustup target add ${{ matrix.target }}
         cargo ndk -t ${{ matrix.arch }} -o ./jniLibs build
         
-    - name: Upload the libs
+    - name: Upload the debug libs
       uses: actions/upload-artifact@v4
       with:
-        name: swc4j-${{ matrix.os }}-${{ matrix.arch }}-${{ env.SWC4J_VERSION }}
+        name: swc4j-debug-${{ matrix.os }}-${{ matrix.arch }}-${{ env.SWC4J_VERSION }}
         path: |
-          /home/runner/work/swc4j/swc4j/rust/jniLibs
+          /home/runner/work/swc4j/swc4j/rust/jniLibs/
     - name: Cargo Build and Test
       env:
         RUSTFLAGS: -Awarnings
