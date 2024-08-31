@@ -48,11 +48,11 @@ jobs:
         ndk-version: r27
         local-cache: false
 
-    - name: Installing Rust ${{ matrix.channel }} w/ ${{ matrix.target }}
-      uses: dtolnay/rust-toolchain@master
-      with:
-        target: ${{ matrix.target }}
-        toolchain: ${{ matrix.channel }}
+    # - name: Installing Rust ${{ matrix.channel }} w/ ${{ matrix.target }}
+    #   uses: dtolnay/rust-toolchain@master
+    #   with:
+    #     target: ${{ matrix.target }}
+    #     toolchain: ${{ matrix.channel }}
 
     - name: Setup Deno
       uses: denoland/setup-deno@v1
@@ -72,7 +72,7 @@ jobs:
         export AR=llvm-ar
         export RUSTFLAGS="-L ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/lib/linux/${{ matrix.ndk-arch }} -L ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.target }}/24 -C target-feature=+crt-static"
         # cargo build --release --target ${{ matrix.target }} --config target.${{ matrix.target }}.linker="'${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang'"
-        cargo build --release --target ${{ matrix.target }}
+        cargo rustc --crate-type cdylib build --release --target ${{ matrix.target }}
         deno run --allow-all ../scripts/ts/copy_swc4j_lib.ts -o ${{ matrix.os }} -a ${{ matrix.arch }}
 
     - name: Setup JDK 8
