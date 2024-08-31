@@ -64,7 +64,6 @@ jobs:
         RUSTFLAGS: -Awarnings
       run: |
         cd rust
-        rustup self uninstall
         # sudo apt-get install binutils
         rustup target add ${{ matrix.target }}
         export CC=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang
