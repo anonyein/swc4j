@@ -56,7 +56,7 @@ pub unsafe extern "system" fn JNI_OnLoad<'local>(java_vm: JavaVM, _: c_void) -> 
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreGetVersion<'local>(
+pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreGetVersion<'local>(
   env: JNIEnv<'local>,
   _: JClass<'local>,
 ) -> jstring {
@@ -65,7 +65,7 @@ pub unsafe extern "C" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreGetVersion
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreParse<'local>(
+pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreParse<'local>(
   mut env: JNIEnv<'local>,
   _: JClass<'local>,
   code: jstring,
@@ -79,7 +79,7 @@ pub unsafe extern "C" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreParse<'loc
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreTransform<'local>(
+pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreTransform<'local>(
   mut env: JNIEnv<'local>,
   _: JClass<'local>,
   code: jstring,
@@ -93,7 +93,7 @@ pub unsafe extern "C" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreTransform<
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreTranspile<'local>(
+pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreTranspile<'local>(
   mut env: JNIEnv<'local>,
   _: JClass<'local>,
   code: jstring,
