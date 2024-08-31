@@ -48,11 +48,11 @@ jobs:
         ndk-version: r27
         local-cache: false
 
-    - name: Installing Rust ${{ matrix.channel }} w/ ${{ matrix.target }}
-      uses: dtolnay/rust-toolchain@master
-      with:
-        target: ${{ matrix.target }}
-        toolchain: ${{ matrix.channel }}
+    # - name: Installing Rust ${{ matrix.channel }} w/ ${{ matrix.target }}
+    #   uses: dtolnay/rust-toolchain@master
+    #   with:
+    #     target: ${{ matrix.target }}
+    #     toolchain: ${{ matrix.channel }}
 
     - name: Setup Deno
       uses: denoland/setup-deno@v1
@@ -64,6 +64,7 @@ jobs:
         RUSTFLAGS: -Awarnings
       run: |
         cd rust
+        brew uninstall rust
         # sudo apt-get install binutils
         rustup target add ${{ matrix.target }}
         export CC=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang
