@@ -33,8 +33,9 @@ jobs:
     runs-on: ${{ matrix.image }}
 
     steps:
-    - name: Install sudo package
-      run: apt update && apt install sudo
+    - run: apt-get update && apt-get install --assume-yes --no-install-recommends sudo
+      name: Install sudo for act
+      if: env.ACT=='true'
       
     - name: Set git to use LF
       run: |
