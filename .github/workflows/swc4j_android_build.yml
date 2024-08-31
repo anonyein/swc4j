@@ -74,6 +74,7 @@ jobs:
       env:
         RUSTFLAGS: -Awarnings
       run: |
+        cd rust
         rustup target add ${{ matrix.target }}
         cargo ndk -t arm64-v8a -o ./jniLibs build --release
         # # sudo apt-get install binutils
