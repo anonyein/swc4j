@@ -69,8 +69,8 @@ jobs:
       run: |
         cd rust
         # sudo apt-get install binutils
-        export PATH=${{ steps.setup-ndk.outputs.ndk-path }}
-        export PATH=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
+        export PATH=$PATH:${{ steps.setup-ndk.outputs.ndk-path }}
+        export PATH=$PATH:${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
         # sudo apt-get update
         # sudo apt-get install build-essential clang curl
         rustup target add ${{ matrix.target }}
