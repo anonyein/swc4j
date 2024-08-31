@@ -71,8 +71,8 @@ jobs:
         # sudo apt-get install binutils
         export PATH=${{ steps.setup-ndk.outputs.ndk-path }}
         export PATH=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
-        sudo apt-get update
-        sudo apt-get install build-essential clang curl
+        # sudo apt-get update
+        # sudo apt-get install build-essential clang curl
         rustup target add ${{ matrix.target }}
         export CC=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang
         export CXX=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.target }}24-clang++
