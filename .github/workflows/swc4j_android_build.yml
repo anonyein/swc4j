@@ -23,7 +23,7 @@ jobs:
         include:
           - image: ubuntu-latest
             os: android 
-            arch: arm64
+            arch: arm64-v8a
             ndk-arch: aarch64
             ext: .so
             channel: stable
@@ -76,7 +76,7 @@ jobs:
       run: |
         cd rust
         rustup target add ${{ matrix.target }}
-        cargo ndk -t arm64-v8a -o ./jniLibs build --release
+        cargo ndk -t ${{ matrix.arch }} -o ./jniLibs build --release
         # # sudo apt-get install binutils
         # export PATH=$PATH:${{ steps.setup-ndk.outputs.ndk-path }}
         # export PATH=$PATH:${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
