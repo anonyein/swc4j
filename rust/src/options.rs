@@ -697,14 +697,14 @@ impl JavaSwc4jTranspileOptions {
       .get_method_id(
         &class,
         "getPrecompileJsxDynamicProps",
-        "()Ljava/util/List;",
+        "()Lj$/util/List;",
       )
       .expect("Couldn't find method Swc4jTranspileOptions.getPrecompileJsxDynamicProps");
     let method_get_precompile_jsx_skip_elements = env
       .get_method_id(
         &class,
         "getPrecompileJsxSkipElements",
-        "()Ljava/util/List;",
+        "()Lj$/util/List;",
       )
       .expect("Couldn't find method Swc4jTranspileOptions.getPrecompileJsxSkipElements");
     let method_get_source_map = env

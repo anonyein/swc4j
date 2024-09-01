@@ -478,7 +478,7 @@ unsafe impl Sync for JavaOptional {}
 impl JavaOptional {
   pub fn new<'local>(env: &mut JNIEnv<'local>) -> Self {
     let class = env
-      .find_class("java/util/Optional")
+      .find_class("j$/util/Optional")
       .expect("Couldn't find class Optional");
     let class = env.new_global_ref(class).expect("Couldn't globalize class Optional");
     let method_get = env
