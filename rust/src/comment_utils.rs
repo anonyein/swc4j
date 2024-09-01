@@ -165,7 +165,7 @@ impl JavaSwc4jComments {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/Map;Lj$/util/Map;)V",
+        "(Ljava/util/Map;Ljava/util/Map;)V",
       )
       .expect("Couldn't find method Swc4jComments::new");
     JavaSwc4jComments {

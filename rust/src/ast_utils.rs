@@ -2645,14 +2645,14 @@ impl JavaSwc4jAstArrayLit {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstArrayLit::new");
     let method_get_elems = env
       .get_method_id(
         &class,
         "getElems",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstArrayLit.getElems");
     JavaSwc4jAstArrayLit {
@@ -2726,14 +2726,14 @@ impl JavaSwc4jAstArrayPat {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;ZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;ZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstArrayPat::new");
     let method_get_elems = env
       .get_method_id(
         &class,
         "getElems",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstArrayPat.getElems");
     let method_get_type_ann = env
@@ -2865,7 +2865,7 @@ impl JavaSwc4jAstArrowExpr {
       .get_method_id(
         &class,
         "<init>",
-        "(ILj$/util/List;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstBlockStmtOrExpr;ZZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ILjava/util/List;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstBlockStmtOrExpr;ZZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstArrowExpr::new");
     let method_get_body = env
@@ -2886,7 +2886,7 @@ impl JavaSwc4jAstArrowExpr {
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstArrowExpr.getParams");
     let method_get_return_type = env
@@ -3576,7 +3576,7 @@ impl JavaSwc4jAstAutoAccessor {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstKey;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;ZLj$/util/List;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstAccessibility;ZZZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstKey;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;ZLjava/util/List;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstAccessibility;ZZZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstAutoAccessor::new");
     let method_get_accessibility = env
@@ -3590,7 +3590,7 @@ impl JavaSwc4jAstAutoAccessor {
       .get_method_id(
         &class,
         "getDecorators",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstAutoAccessor.getDecorators");
     let method_get_key = env
@@ -4333,7 +4333,7 @@ impl JavaSwc4jAstBlockStmt {
       .get_method_id(
         &class,
         "<init>",
-        "(ILj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ILjava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstBlockStmt::new");
     let method_get_ctxt = env
@@ -4347,7 +4347,7 @@ impl JavaSwc4jAstBlockStmt {
       .get_method_id(
         &class,
         "getStmts",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstBlockStmt.getStmts");
     JavaSwc4jAstBlockStmt {
@@ -4598,14 +4598,14 @@ impl JavaSwc4jAstCallExpr {
       .get_method_id(
         &class,
         "<init>",
-        "(ILcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstCallee;Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamInstantiation;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ILcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstCallee;Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamInstantiation;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstCallExpr::new");
     let method_get_args = env
       .get_method_id(
         &class,
         "getArgs",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstCallExpr.getArgs");
     let method_get_callee = env
@@ -4875,14 +4875,14 @@ impl JavaSwc4jAstClass {
       .get_method_id(
         &class,
         "<init>",
-        "(ILj$/util/List;Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;ZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamInstantiation;Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ILjava/util/List;Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;ZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamInstantiation;Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstClass::new");
     let method_get_body = env
       .get_method_id(
         &class,
         "getBody",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstClass.getBody");
     let method_get_ctxt = env
@@ -4896,14 +4896,14 @@ impl JavaSwc4jAstClass {
       .get_method_id(
         &class,
         "getDecorators",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstClass.getDecorators");
     let method_get_implements = env
       .get_method_id(
         &class,
         "getImplements",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstClass.getImplements");
     let method_get_super_class = env
@@ -5675,7 +5675,7 @@ impl JavaSwc4jAstClassProp {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstPropName;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;ZLj$/util/List;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstAccessibility;ZZZZZZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstPropName;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;ZLjava/util/List;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstAccessibility;ZZZZZZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstClassProp::new");
     let method_get_accessibility = env
@@ -5689,7 +5689,7 @@ impl JavaSwc4jAstClassProp {
       .get_method_id(
         &class,
         "getDecorators",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstClassProp.getDecorators");
     let method_get_key = env
@@ -6269,7 +6269,7 @@ impl JavaSwc4jAstConstructor {
       .get_method_id(
         &class,
         "<init>",
-        "(ILcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstPropName;Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/stmt/Swc4jAstBlockStmt;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstAccessibility;ZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ILcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstPropName;Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/stmt/Swc4jAstBlockStmt;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstAccessibility;ZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstConstructor::new");
     let method_get_accessibility = env
@@ -6304,7 +6304,7 @@ impl JavaSwc4jAstConstructor {
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstConstructor.getParams");
     let method_is_optional = env
@@ -8420,7 +8420,7 @@ impl JavaSwc4jAstFunction {
       .get_method_id(
         &class,
         "<init>",
-        "(ILj$/util/List;Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/stmt/Swc4jAstBlockStmt;ZZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ILjava/util/List;Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/stmt/Swc4jAstBlockStmt;ZZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstFunction::new");
     let method_get_body = env
@@ -8441,14 +8441,14 @@ impl JavaSwc4jAstFunction {
       .get_method_id(
         &class,
         "getDecorators",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstFunction.getDecorators");
     let method_get_params = env
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstFunction.getParams");
     let method_get_return_type = env
@@ -9268,7 +9268,7 @@ impl JavaSwc4jAstImportDecl {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/expr/lit/Swc4jAstStr;ZLcom/caoccao/javet/swc4j/ast/expr/lit/Swc4jAstObjectLit;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstImportPhase;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/expr/lit/Swc4jAstStr;ZLcom/caoccao/javet/swc4j/ast/expr/lit/Swc4jAstObjectLit;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstImportPhase;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstImportDecl::new");
     let method_get_phase = env
@@ -9282,7 +9282,7 @@ impl JavaSwc4jAstImportDecl {
       .get_method_id(
         &class,
         "getSpecifiers",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstImportDecl.getSpecifiers");
     let method_get_src = env
@@ -10039,14 +10039,14 @@ impl JavaSwc4jAstJsxElement {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/miscs/Swc4jAstJsxOpeningElement;Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/miscs/Swc4jAstJsxClosingElement;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/miscs/Swc4jAstJsxOpeningElement;Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/miscs/Swc4jAstJsxClosingElement;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstJsxElement::new");
     let method_get_children = env
       .get_method_id(
         &class,
         "getChildren",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstJsxElement.getChildren");
     let method_get_closing = env
@@ -10305,14 +10305,14 @@ impl JavaSwc4jAstJsxFragment {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/miscs/Swc4jAstJsxOpeningFragment;Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/miscs/Swc4jAstJsxClosingFragment;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/miscs/Swc4jAstJsxOpeningFragment;Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/miscs/Swc4jAstJsxClosingFragment;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstJsxFragment::new");
     let method_get_children = env
       .get_method_id(
         &class,
         "getChildren",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstJsxFragment.getChildren");
     let method_get_closing = env
@@ -10659,14 +10659,14 @@ impl JavaSwc4jAstJsxOpeningElement {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstJsxElementName;Lj$/util/List;ZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamInstantiation;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstJsxElementName;Ljava/util/List;ZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamInstantiation;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstJsxOpeningElement::new");
     let method_get_attrs = env
       .get_method_id(
         &class,
         "getAttrs",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstJsxOpeningElement.getAttrs");
     let method_get_name = env
@@ -11685,14 +11685,14 @@ impl JavaSwc4jAstModule {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Ljava/lang/String;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Ljava/lang/String;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstModule::new");
     let method_get_body = env
       .get_method_id(
         &class,
         "getBody",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstModule.getBody");
     let method_get_shebang = env
@@ -11797,14 +11797,14 @@ impl JavaSwc4jAstNamedExport {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/expr/lit/Swc4jAstStr;ZLcom/caoccao/javet/swc4j/ast/expr/lit/Swc4jAstObjectLit;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/expr/lit/Swc4jAstStr;ZLcom/caoccao/javet/swc4j/ast/expr/lit/Swc4jAstObjectLit;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstNamedExport::new");
     let method_get_specifiers = env
       .get_method_id(
         &class,
         "getSpecifiers",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstNamedExport.getSpecifiers");
     let method_get_src = env
@@ -11961,7 +11961,7 @@ impl JavaSwc4jAstNewExpr {
       .get_method_id(
         &class,
         "<init>",
-        "(ILcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamInstantiation;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ILcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamInstantiation;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstNewExpr::new");
     let method_get_args = env
@@ -12281,14 +12281,14 @@ impl JavaSwc4jAstObjectLit {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstObjectLit::new");
     let method_get_props = env
       .get_method_id(
         &class,
         "getProps",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstObjectLit.getProps");
     JavaSwc4jAstObjectLit {
@@ -12362,14 +12362,14 @@ impl JavaSwc4jAstObjectPat {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;ZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;ZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstObjectPat::new");
     let method_get_props = env
       .get_method_id(
         &class,
         "getProps",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstObjectPat.getProps");
     let method_get_type_ann = env
@@ -12498,14 +12498,14 @@ impl JavaSwc4jAstOptCall {
       .get_method_id(
         &class,
         "<init>",
-        "(ILcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamInstantiation;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ILcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamInstantiation;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstOptCall::new");
     let method_get_args = env
       .get_method_id(
         &class,
         "getArgs",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstOptCall.getArgs");
     let method_get_callee = env
@@ -12767,14 +12767,14 @@ impl JavaSwc4jAstParam {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstPat;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstPat;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstParam::new");
     let method_get_decorators = env
       .get_method_id(
         &class,
         "getDecorators",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstParam.getDecorators");
     let method_get_pat = env
@@ -13320,7 +13320,7 @@ impl JavaSwc4jAstPrivateProp {
       .get_method_id(
         &class,
         "<init>",
-        "(ILcom/caoccao/javet/swc4j/ast/clazz/Swc4jAstPrivateName;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;ZLj$/util/List;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstAccessibility;ZZZZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ILcom/caoccao/javet/swc4j/ast/clazz/Swc4jAstPrivateName;Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;ZLjava/util/List;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstAccessibility;ZZZZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstPrivateProp::new");
     let method_get_accessibility = env
@@ -13341,7 +13341,7 @@ impl JavaSwc4jAstPrivateProp {
       .get_method_id(
         &class,
         "getDecorators",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstPrivateProp.getDecorators");
     let method_get_key = env
@@ -14001,14 +14001,14 @@ impl JavaSwc4jAstScript {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Ljava/lang/String;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Ljava/lang/String;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstScript::new");
     let method_get_body = env
       .get_method_id(
         &class,
         "getBody",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstScript.getBody");
     let method_get_shebang = env
@@ -14110,14 +14110,14 @@ impl JavaSwc4jAstSeqExpr {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstSeqExpr::new");
     let method_get_exprs = env
       .get_method_id(
         &class,
         "getExprs",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstSeqExpr.getExprs");
     JavaSwc4jAstSeqExpr {
@@ -14815,14 +14815,14 @@ impl JavaSwc4jAstSwitchCase {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstSwitchCase::new");
     let method_get_cons = env
       .get_method_id(
         &class,
         "getCons",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstSwitchCase.getCons");
     let method_get_test = env
@@ -14923,14 +14923,14 @@ impl JavaSwc4jAstSwitchStmt {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstSwitchStmt::new");
     let method_get_cases = env
       .get_method_id(
         &class,
         "getCases",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstSwitchStmt.getCases");
     let method_get_discriminant = env
@@ -15325,21 +15325,21 @@ impl JavaSwc4jAstTpl {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTpl::new");
     let method_get_exprs = env
       .get_method_id(
         &class,
         "getExprs",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTpl.getExprs");
     let method_get_quasis = env
       .get_method_id(
         &class,
         "getQuasis",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTpl.getQuasis");
     JavaSwc4jAstTpl {
@@ -15899,14 +15899,14 @@ impl JavaSwc4jAstTsCallSignatureDecl {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsCallSignatureDecl::new");
     let method_get_params = env
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsCallSignatureDecl.getParams");
     let method_get_type_ann = env
@@ -16281,14 +16281,14 @@ impl JavaSwc4jAstTsConstructSignatureDecl {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsConstructSignatureDecl::new");
     let method_get_params = env
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsConstructSignatureDecl.getParams");
     let method_get_type_ann = env
@@ -16419,14 +16419,14 @@ impl JavaSwc4jAstTsConstructorType {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;ZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;ZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsConstructorType::new");
     let method_get_params = env
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsConstructorType.getParams");
     let method_get_type_ann = env
@@ -16583,7 +16583,7 @@ impl JavaSwc4jAstTsEnumDecl {
       .get_method_id(
         &class,
         "<init>",
-        "(ZZLcom/caoccao/javet/swc4j/ast/expr/Swc4jAstIdent;Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ZZLcom/caoccao/javet/swc4j/ast/expr/Swc4jAstIdent;Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsEnumDecl::new");
     let method_get_id = env
@@ -16597,7 +16597,7 @@ impl JavaSwc4jAstTsEnumDecl {
       .get_method_id(
         &class,
         "getMembers",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsEnumDecl.getMembers");
     let method_is_const = env
@@ -17118,14 +17118,14 @@ impl JavaSwc4jAstTsFnType {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsFnType::new");
     let method_get_params = env
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsFnType.getParams");
     let method_get_type_ann = env
@@ -17690,14 +17690,14 @@ impl JavaSwc4jAstTsIndexSignature {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;ZZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;ZZLcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsIndexSignature::new");
     let method_get_params = env
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsIndexSignature.getParams");
     let method_get_type_ann = env
@@ -18171,14 +18171,14 @@ impl JavaSwc4jAstTsInterfaceBody {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsInterfaceBody::new");
     let method_get_body = env
       .get_method_id(
         &class,
         "getBody",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsInterfaceBody.getBody");
     JavaSwc4jAstTsInterfaceBody {
@@ -18254,7 +18254,7 @@ impl JavaSwc4jAstTsInterfaceDecl {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/expr/Swc4jAstIdent;ZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsInterfaceBody;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/expr/Swc4jAstIdent;ZLcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsInterfaceBody;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsInterfaceDecl::new");
     let method_get_body = env
@@ -18268,7 +18268,7 @@ impl JavaSwc4jAstTsInterfaceDecl {
       .get_method_id(
         &class,
         "getExtends",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsInterfaceDecl.getExtends");
     let method_get_id = env
@@ -18443,14 +18443,14 @@ impl JavaSwc4jAstTsIntersectionType {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsIntersectionType::new");
     let method_get_types = env
       .get_method_id(
         &class,
         "getTypes",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsIntersectionType.getTypes");
     JavaSwc4jAstTsIntersectionType {
@@ -18880,7 +18880,7 @@ impl JavaSwc4jAstTsMethodSignature {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;ZZLj$/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstExpr;ZZLjava/util/List;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeAnn;Lcom/caoccao/javet/swc4j/ast/ts/Swc4jAstTsTypeParamDecl;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsMethodSignature::new");
     let method_get_key = env
@@ -18894,7 +18894,7 @@ impl JavaSwc4jAstTsMethodSignature {
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsMethodSignature.getParams");
     let method_get_type_ann = env
@@ -19095,14 +19095,14 @@ impl JavaSwc4jAstTsModuleBlock {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsModuleBlock::new");
     let method_get_body = env
       .get_method_id(
         &class,
         "getBody",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsModuleBlock.getBody");
     JavaSwc4jAstTsModuleBlock {
@@ -19739,7 +19739,7 @@ impl JavaSwc4jAstTsParamProp {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstAccessibility;ZZLcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstTsParamPropParam;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/ast/enums/Swc4jAstAccessibility;ZZLcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstTsParamPropParam;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsParamProp::new");
     let method_get_accessibility = env
@@ -19753,7 +19753,7 @@ impl JavaSwc4jAstTsParamProp {
       .get_method_id(
         &class,
         "getDecorators",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsParamProp.getDecorators");
     let method_get_param = env
@@ -20675,21 +20675,21 @@ impl JavaSwc4jAstTsTplLitType {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsTplLitType::new");
     let method_get_quasis = env
       .get_method_id(
         &class,
         "getQuasis",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsTplLitType.getQuasis");
     let method_get_types = env
       .get_method_id(
         &class,
         "getTypes",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsTplLitType.getTypes");
     JavaSwc4jAstTsTplLitType {
@@ -20890,14 +20890,14 @@ impl JavaSwc4jAstTsTupleType {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsTupleType::new");
     let method_get_elem_types = env
       .get_method_id(
         &class,
         "getElemTypes",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsTupleType.getElemTypes");
     JavaSwc4jAstTsTupleType {
@@ -21320,14 +21320,14 @@ impl JavaSwc4jAstTsTypeLit {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsTypeLit::new");
     let method_get_members = env
       .get_method_id(
         &class,
         "getMembers",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsTypeLit.getMembers");
     JavaSwc4jAstTsTypeLit {
@@ -21725,14 +21725,14 @@ impl JavaSwc4jAstTsTypeParamDecl {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsTypeParamDecl::new");
     let method_get_params = env
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsTypeParamDecl.getParams");
     JavaSwc4jAstTsTypeParamDecl {
@@ -21804,14 +21804,14 @@ impl JavaSwc4jAstTsTypeParamInstantiation {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsTypeParamInstantiation::new");
     let method_get_params = env
       .get_method_id(
         &class,
         "getParams",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsTypeParamInstantiation.getParams");
     JavaSwc4jAstTsTypeParamInstantiation {
@@ -22234,14 +22234,14 @@ impl JavaSwc4jAstTsUnionType {
       .get_method_id(
         &class,
         "<init>",
-        "(Lj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(Ljava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstTsUnionType::new");
     let method_get_types = env
       .get_method_id(
         &class,
         "getTypes",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstTsUnionType.getTypes");
     JavaSwc4jAstTsUnionType {
@@ -22557,14 +22557,14 @@ impl JavaSwc4jAstUsingDecl {
       .get_method_id(
         &class,
         "<init>",
-        "(ZLj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ZLjava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstUsingDecl::new");
     let method_get_decls = env
       .get_method_id(
         &class,
         "getDecls",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstUsingDecl.getDecls");
     let method_is_await = env
@@ -22665,7 +22665,7 @@ impl JavaSwc4jAstVarDecl {
       .get_method_id(
         &class,
         "<init>",
-        "(ILcom/caoccao/javet/swc4j/ast/enums/Swc4jAstVarDeclKind;ZLj$/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
+        "(ILcom/caoccao/javet/swc4j/ast/enums/Swc4jAstVarDeclKind;ZLjava/util/List;Lcom/caoccao/javet/swc4j/span/Swc4jSpan;)V",
       )
       .expect("Couldn't find method Swc4jAstVarDecl::new");
     let method_get_ctxt = env
@@ -22679,7 +22679,7 @@ impl JavaSwc4jAstVarDecl {
       .get_method_id(
         &class,
         "getDecls",
-        "()Lj$/util/List;",
+        "()Ljava/util/List;",
       )
       .expect("Couldn't find method Swc4jAstVarDecl.getDecls");
     let method_get_kind = env

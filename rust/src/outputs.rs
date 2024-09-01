@@ -53,7 +53,7 @@ impl JavaSwc4jParseOutput {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstProgram;Lcom/caoccao/javet/swc4j/enums/Swc4jMediaType;Lcom/caoccao/javet/swc4j/enums/Swc4jParseMode;Ljava/lang/String;Lj$/util/List;Lcom/caoccao/javet/swc4j/comments/Swc4jComments;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstProgram;Lcom/caoccao/javet/swc4j/enums/Swc4jMediaType;Lcom/caoccao/javet/swc4j/enums/Swc4jParseMode;Ljava/lang/String;Ljava/util/List;Lcom/caoccao/javet/swc4j/comments/Swc4jComments;)V",
       )
       .expect("Couldn't find method Swc4jParseOutput::new");
     JavaSwc4jParseOutput {
@@ -179,7 +179,7 @@ impl JavaSwc4jTranspileOutput {
       .get_method_id(
         &class,
         "<init>",
-        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstProgram;Ljava/lang/String;Lcom/caoccao/javet/swc4j/enums/Swc4jMediaType;Lcom/caoccao/javet/swc4j/enums/Swc4jParseMode;Ljava/lang/String;Ljava/lang/String;Lj$/util/List;Lcom/caoccao/javet/swc4j/comments/Swc4jComments;)V",
+        "(Lcom/caoccao/javet/swc4j/ast/interfaces/ISwc4jAstProgram;Ljava/lang/String;Lcom/caoccao/javet/swc4j/enums/Swc4jMediaType;Lcom/caoccao/javet/swc4j/enums/Swc4jParseMode;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/caoccao/javet/swc4j/comments/Swc4jComments;)V",
       )
       .expect("Couldn't find method Swc4jTranspileOutput::new");
     JavaSwc4jTranspileOutput {
