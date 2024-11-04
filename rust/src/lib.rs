@@ -17,7 +17,11 @@
 
 use anyhow::Result;
 use jni::objects::{JClass, JObject, JString};
-use jni::sys::{jint, jobject, jstring, JNI_VERSION_1_6};
+#[cfg(target_os = "android")]
+use jni::sys::JNI_VERSION_1_6;
+#[cfg(not(target_os = "android"))]
+use jni::sys::JNI_VERSION_1_8;
+use jni::sys::{jint, jobject, jstring};
 use jni::{JNIEnv, JavaVM};
 use jni_utils::FromJava;
 
@@ -38,7 +42,7 @@ pub mod token_utils;
 use crate::jni_utils::{jstring_to_optional_string, jstring_to_string, string_to_jstring, ToJava};
 
 #[no_mangle]
-pub unsafe extern "system" fn JNI_OnLoad<'local>(java_vm: JavaVM, _: c_void) -> jint {
+pub extern "system" fn JNI_OnLoad<'local>(java_vm: JavaVM, _: c_void) -> jint {
   env_logger::init();
   log::debug!("JNI_OnLoad()");
   let mut env = java_vm.get_env().expect("Cannot get JNI env");
@@ -52,11 +56,15 @@ pub unsafe extern "system" fn JNI_OnLoad<'local>(java_vm: JavaVM, _: c_void) -> 
   plugin_utils::init(&mut env);
   span_utils::init(&mut env);
   token_utils::init(&mut env);
-  JNI_VERSION_1_6
+  #[cfg(target_os = "android")]
+  let jni_version = JNI_VERSION_1_6;
+  #[cfg(not(target_os = "android"))]
+  let jni_version = JNI_VERSION_1_8;
+  jni_version
 }
 
 #[no_mangle]
-pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreGetVersion<'local>(
+pub extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreGetVersion<'local>(
   env: JNIEnv<'local>,
   _: JClass<'local>,
 ) -> jstring {
@@ -65,7 +73,7 @@ pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreGetVe
 }
 
 #[no_mangle]
-pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreParse<'local>(
+pub extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreParse<'local>(
   mut env: JNIEnv<'local>,
   _: JClass<'local>,
   code: jstring,
@@ -79,7 +87,7 @@ pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreParse
 }
 
 #[no_mangle]
-pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreTransform<'local>(
+pub extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreTransform<'local>(
   mut env: JNIEnv<'local>,
   _: JClass<'local>,
   code: jstring,
@@ -93,7 +101,7 @@ pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreTrans
 }
 
 #[no_mangle]
-pub unsafe extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreTranspile<'local>(
+pub extern "system" fn Java_com_caoccao_javet_swc4j_Swc4jNative_coreTranspile<'local>(
   mut env: JNIEnv<'local>,
   _: JClass<'local>,
   code: jstring,
