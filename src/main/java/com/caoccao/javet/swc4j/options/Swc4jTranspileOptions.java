@@ -18,6 +18,7 @@ package com.caoccao.javet.swc4j.options;
 
 import com.caoccao.javet.swc4j.enums.Swc4jImportsNotUsedAsValues;
 import com.caoccao.javet.swc4j.enums.Swc4jMediaType;
+import com.caoccao.javet.swc4j.enums.Swc4jModuleKind;
 import com.caoccao.javet.swc4j.enums.Swc4jParseMode;
 import com.caoccao.javet.swc4j.enums.Swc4jSourceMapOption;
 import com.caoccao.javet.swc4j.jni2rust.Jni2RustClass;
