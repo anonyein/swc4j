@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 env:
-  SWC4J_VERSION: 1.0.0
+  SWC4J_VERSION: 1.2.0
 
 jobs:
   build_cross_platform:
