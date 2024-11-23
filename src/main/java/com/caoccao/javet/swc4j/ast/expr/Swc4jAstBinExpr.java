@@ -19,6 +19,7 @@ package com.caoccao.javet.swc4j.ast.expr;
 import com.caoccao.javet.swc4j.ast.Swc4jAst;
 import com.caoccao.javet.swc4j.ast.enums.Swc4jAstBinaryOp;
 import com.caoccao.javet.swc4j.ast.enums.Swc4jAstType;
+import com.caoccao.javet.swc4j.ast.enums.Swc4jAstUnaryOp;
 import com.caoccao.javet.swc4j.ast.expr.lit.Swc4jAstArrayLit;
 import com.caoccao.javet.swc4j.ast.expr.lit.Swc4jAstNumber;
 import com.caoccao.javet.swc4j.ast.expr.lit.Swc4jAstStr;
@@ -43,8 +44,22 @@ import java.util.Optional;
 public class Swc4jAstBinExpr
         extends Swc4jAst
         implements ISwc4jAstExpr {
+    /**
+     * The Bang count is a local cache of the bang count through the AST.
+     *
+     * @since 1.3.0
+     */
+    @Jni2RustField(ignore = true)
+    protected Optional<Integer> bangCount;
     @Jni2RustField(box = true)
     protected ISwc4jAstExpr left;
+    /**
+     * The Logical operator count is a local cache of the logical operator count through the AST.
+     *
+     * @since 1.3.0
+     */
+    @Jni2RustField(ignore = true)
+    protected Optional<Integer> logicalOperatorCount;
     protected Swc4jAstBinaryOp op;
     @Jni2RustField(box = true)
     protected ISwc4jAstExpr right;
@@ -56,6 +71,8 @@ public class Swc4jAstBinExpr
             ISwc4jAstExpr right,
             Swc4jSpan span) {
         super(span);
+        resetBangCount();
+        resetLogicalOperatorCount();
         setLeft(left);
         setOp(op);
         setRight(right);
@@ -210,6 +227,33 @@ public class Swc4jAstBinExpr
         return super.eval();
     }
 
+    protected int getBangCount(ISwc4jAst ast) {
+        switch (ast.getType()) {
+            case BinExpr:
+                Swc4jAstBinExpr binExpr = ast.as(Swc4jAstBinExpr.class);
+                if (binExpr.getOp().isLogicalOperator()) {
+                    return binExpr.getBangCount();
+                }
+                return 0;
+            case ParenExpr:
+                return getBangCount(ast.getParent());
+            case UnaryExpr:
+                if (ast.as(Swc4jAstUnaryExpr.class).getOp() == Swc4jAstUnaryOp.Bang) {
+                    return getBangCount(ast.getParent()) + 1;
+                }
+                return 0;
+            default:
+                return 0;
+        }
+    }
+
+    public int getBangCount() {
+        if (!bangCount.isPresent()) {
+            bangCount = Optional.of(getBangCount(getParent()));
+        }
+        return bangCount.get();
+    }
+
     @Override
     public List<ISwc4jAst> getChildNodes() {
         return SimpleList.of(left, right);
@@ -220,9 +264,46 @@ public class Swc4jAstBinExpr
         return left;
     }
 
+    public int getLogicalOperatorCount() {
+        if (!logicalOperatorCount.isPresent()) {
+            logicalOperatorCount = Optional.of(getLogicalOperatorCount(getParent()));
+        }
+        return logicalOperatorCount.get();
+    }
+
+    protected int getLogicalOperatorCount(ISwc4jAst ast) {
+        switch (ast.getType()) {
+            case BinExpr:
+                Swc4jAstBinExpr binExpr = ast.as(Swc4jAstBinExpr.class);
+                if (binExpr.getOp().isLogicalOperator()) {
+                    return binExpr.getLogicalOperatorCount() + 1;
+                }
+                return 0;
+            case ParenExpr:
+                return getLogicalOperatorCount(ast.getParent());
+            default:
+                return 0;
+        }
+    }
+
     @Jni2RustMethod
     public Swc4jAstBinaryOp getOp() {
         return op;
+    }
+
+    public Swc4jAstBinExpr getParentBinExpr() {
+        return getParentBinExpr(getParent());
+    }
+
+    protected Swc4jAstBinExpr getParentBinExpr(ISwc4jAst ast) {
+        switch (ast.getType()) {
+            case BinExpr:
+                return ast.as(Swc4jAstBinExpr.class);
+            case ParenExpr:
+                return getParentBinExpr(ast.getParent());
+            default:
+                return null;
+        }
     }
 
     @Jni2RustMethod
@@ -246,6 +327,16 @@ public class Swc4jAstBinExpr
             return true;
         }
         return false;
+    }
+
+    public Swc4jAstBinExpr resetBangCount() {
+        bangCount = Optional.empty();
+        return this;
+    }
+
+    public Swc4jAstBinExpr resetLogicalOperatorCount() {
+        logicalOperatorCount = Optional.empty();
+        return this;
     }
 
     public Swc4jAstBinExpr setLeft(ISwc4jAstExpr left) {

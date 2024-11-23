@@ -26,9 +26,11 @@ import com.caoccao.javet.swc4j.ast.visitors.Swc4jAstVisitorResponse;
 import com.caoccao.javet.swc4j.exceptions.Swc4jCoreException;
 import com.caoccao.javet.swc4j.outputs.Swc4jParseOutput;
 import com.caoccao.javet.swc4j.plugins.ISwc4jPluginHost;
+import com.caoccao.javet.swc4j.utils.SimpleList;
 import com.caoccao.javet.swc4j.utils.SimpleMap;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -76,6 +78,71 @@ public class TestSwc4jAstBinExpr extends BaseTestSuiteSwc4jAst {
             return true;
         };
         assertTransformJs(testCaseMap, pluginHost);
+    }
+
+    @Test
+    public void testGetBangCount() throws Swc4jCoreException {
+        Map<String, Integer> testCaseMap = SimpleMap.of(
+                "a>b", 0,
+                "!(a>b)", 1,
+                "!(!(a>b))", 2,
+                "!(!(!(a>b)))", 3);
+        for (Map.Entry<String, Integer> entry : testCaseMap.entrySet()) {
+            String code = entry.getKey();
+            int bangCount = entry.getValue();
+            Swc4jParseOutput output = swc4j.parse(code, tsScriptParseOptions);
+            List<Swc4jAstBinExpr> nodes = output.getProgram().find(Swc4jAstBinExpr.class);
+            assertEquals(1, nodes.size());
+            Swc4jAstBinExpr binExpr = nodes.get(0);
+            assertEquals("a", binExpr.getLeft().as(Swc4jAstIdent.class).getSym());
+            assertEquals("b", binExpr.getRight().as(Swc4jAstIdent.class).getSym());
+            assertEquals(bangCount, binExpr.getBangCount());
+        }
+    }
+
+    @Test
+    public void testGetLogicalOperatorCount() throws Swc4jCoreException {
+        Map<String, List<Object>> testCaseMap = SimpleMap.of(
+                "a==b", SimpleList.of(
+                        0, Swc4jAstBinaryOp.EqEq),
+                "a>b||c<d", SimpleList.of(
+                        0, Swc4jAstBinaryOp.LogicalOr,
+                        1, Swc4jAstBinaryOp.Gt,
+                        1, Swc4jAstBinaryOp.Lt),
+                "a>b||(c==d&&(e+f)<=g)", SimpleList.of(
+                        0, Swc4jAstBinaryOp.LogicalOr,
+                        1, Swc4jAstBinaryOp.Gt,
+                        1, Swc4jAstBinaryOp.LogicalAnd,
+                        2, Swc4jAstBinaryOp.EqEq,
+                        2, Swc4jAstBinaryOp.LtEq,
+                        3, Swc4jAstBinaryOp.Add),
+                "a>b||((c+d)?e:f)", SimpleList.of(
+                        0, Swc4jAstBinaryOp.LogicalOr,
+                        1, Swc4jAstBinaryOp.Gt,
+                        0, Swc4jAstBinaryOp.Add));
+        for (Map.Entry<String, List<Object>> entry : testCaseMap.entrySet()) {
+            String code = entry.getKey();
+            int size = entry.getValue().size() >> 1;
+            Swc4jParseOutput output = swc4j.parse(code, tsScriptParseOptions);
+            List<Swc4jAstBinExpr> nodes = output.getProgram().find(Swc4jAstBinExpr.class);
+            assertEquals(size, nodes.size());
+            for (int i = 0; i < size; i++) {
+                Swc4jAstBinExpr binExpr = nodes.get(i);
+                int index = i << 1;
+                assertEquals(entry.getValue().get(index + 1), binExpr.getOp());
+                assertEquals(entry.getValue().get(index), binExpr.getLogicalOperatorCount());
+            }
+        }
+    }
+
+    @Test
+    public void testGetParentBinExpr() throws Swc4jCoreException {
+        Swc4jParseOutput output = swc4j.parse("a==b&&(c==d)", tsScriptParseOptions);
+        List<Swc4jAstBinExpr> nodes = output.getProgram().find(Swc4jAstBinExpr.class);
+        assertEquals(3, nodes.size());
+        assertNull(nodes.get(0).getParentBinExpr());
+        assertEquals(nodes.get(0), nodes.get(1).getParentBinExpr());
+        assertEquals(nodes.get(0), nodes.get(2).getParentBinExpr());
     }
 
     @Test
