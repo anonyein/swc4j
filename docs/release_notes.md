@@ -1,9 +1,33 @@
 # Release Notes
 
+## 1.3.0
+
+* Upgraded deno_ast to v0.44.0
+* Upgraded rust toolchain to v1.82.0
+* Added `find()` to `ISwc4jAst`
+* Added `getMinusCount()` to `Swc4jAstNumber`
+* Added `getBangCount()`, `getLogicalOperatorCount()`, `getParentBinExpr()` to `Swc4jAstBinExpr`
+* Added `getOppositeOperator()`, `isLogicalOperator()`, `isLogicalCompareOperator()`, `isLogicalConditionOperator()` to `Swc4jAstBinaryOp`
+
+## 1.2.0
+
+* Upgraded deno_ast to v0.43.3
+* Removed `TsBuildInfo` from `Swc4jMediaType`
+* Added `Css` to `Swc4jMediaType`
+* Added `verbatimModuleSyntax` to `Swc4jTranspileOptions`
+* Added `Swc4jModuleKind` to `Swc4jTranspileOptions`
+
+## 1.1.0
+
+* Upgraded deno_ast to v0.42.2
+* Upgraded rust toolchain to v1.81.0
+
 ## 1.0.0
 
+* Upgraded deno_ast to v0.42.0
 * Revised internal error handling by relaying exception in `parse()`, `transform()`, `transpile()`
 * Enhanced logging in rust lib
+* Supported Android
 
 ## 0.11.0
 
