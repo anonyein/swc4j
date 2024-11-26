@@ -2740,7 +2740,7 @@ impl JavaSwc4jAstArrayPat {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstArrayPat.getTypeAnn");
     let method_is_optional = env
@@ -2893,14 +2893,14 @@ impl JavaSwc4jAstArrowExpr {
       .get_method_id(
         &class,
         "getReturnType",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstArrowExpr.getReturnType");
     let method_get_type_params = env
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstArrowExpr.getTypeParams");
     let method_is_async = env
@@ -3367,7 +3367,7 @@ impl JavaSwc4jAstAssignPatProp {
       .get_method_id(
         &class,
         "getValue",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstAssignPatProp.getValue");
     JavaSwc4jAstAssignPatProp {
@@ -3583,7 +3583,7 @@ impl JavaSwc4jAstAutoAccessor {
       .get_method_id(
         &class,
         "getAccessibility",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstAutoAccessor.getAccessibility");
     let method_get_decorators = env
@@ -3604,14 +3604,14 @@ impl JavaSwc4jAstAutoAccessor {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstAutoAccessor.getTypeAnn");
     let method_get_value = env
       .get_method_id(
         &class,
         "getValue",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstAutoAccessor.getValue");
     let method_is_abstract = env
@@ -3959,7 +3959,7 @@ impl JavaSwc4jAstBigInt {
       .get_method_id(
         &class,
         "getRaw",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstBigInt.getRaw");
     let method_get_sign = env
@@ -4239,7 +4239,7 @@ impl JavaSwc4jAstBindingIdent {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstBindingIdent.getTypeAnn");
     JavaSwc4jAstBindingIdent {
@@ -4523,7 +4523,7 @@ impl JavaSwc4jAstBreakStmt {
       .get_method_id(
         &class,
         "getLabel",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstBreakStmt.getLabel");
     JavaSwc4jAstBreakStmt {
@@ -4626,7 +4626,7 @@ impl JavaSwc4jAstCallExpr {
       .get_method_id(
         &class,
         "getTypeArgs",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstCallExpr.getTypeArgs");
     JavaSwc4jAstCallExpr {
@@ -4775,7 +4775,7 @@ impl JavaSwc4jAstCatchClause {
       .get_method_id(
         &class,
         "getParam",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstCatchClause.getParam");
     JavaSwc4jAstCatchClause {
@@ -4910,21 +4910,21 @@ impl JavaSwc4jAstClass {
       .get_method_id(
         &class,
         "getSuperClass",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstClass.getSuperClass");
     let method_get_super_type_params = env
       .get_method_id(
         &class,
         "getSuperTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstClass.getSuperTypeParams");
     let method_get_type_params = env
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstClass.getTypeParams");
     let method_is_abstract = env
@@ -5297,7 +5297,7 @@ impl JavaSwc4jAstClassExpr {
       .get_method_id(
         &class,
         "getIdent",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstClassExpr.getIdent");
     JavaSwc4jAstClassExpr {
@@ -5404,7 +5404,7 @@ impl JavaSwc4jAstClassMethod {
       .get_method_id(
         &class,
         "getAccessibility",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstClassMethod.getAccessibility");
     let method_get_function = env
@@ -5682,7 +5682,7 @@ impl JavaSwc4jAstClassProp {
       .get_method_id(
         &class,
         "getAccessibility",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstClassProp.getAccessibility");
     let method_get_decorators = env
@@ -5703,14 +5703,14 @@ impl JavaSwc4jAstClassProp {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstClassProp.getTypeAnn");
     let method_get_value = env
       .get_method_id(
         &class,
         "getValue",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstClassProp.getValue");
     let method_is_abstract = env
@@ -6276,14 +6276,14 @@ impl JavaSwc4jAstConstructor {
       .get_method_id(
         &class,
         "getAccessibility",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstConstructor.getAccessibility");
     let method_get_body = env
       .get_method_id(
         &class,
         "getBody",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstConstructor.getBody");
     let method_get_ctxt = env
@@ -6492,7 +6492,7 @@ impl JavaSwc4jAstContinueStmt {
       .get_method_id(
         &class,
         "getLabel",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstContinueStmt.getLabel");
     JavaSwc4jAstContinueStmt {
@@ -6867,7 +6867,7 @@ impl JavaSwc4jAstExportAll {
       .get_method_id(
         &class,
         "getWith",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstExportAll.getWith");
     let method_is_type_only = env
@@ -7311,7 +7311,7 @@ impl JavaSwc4jAstExportNamedSpecifier {
       .get_method_id(
         &class,
         "getExported",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstExportNamedSpecifier.getExported");
     let method_get_orig = env
@@ -7531,7 +7531,7 @@ impl JavaSwc4jAstExprOrSpread {
       .get_method_id(
         &class,
         "getSpread",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstExprOrSpread.getSpread");
     JavaSwc4jAstExprOrSpread {
@@ -7853,7 +7853,7 @@ impl JavaSwc4jAstFnExpr {
       .get_method_id(
         &class,
         "getIdent",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstFnExpr.getIdent");
     JavaSwc4jAstFnExpr {
@@ -8264,21 +8264,21 @@ impl JavaSwc4jAstForStmt {
       .get_method_id(
         &class,
         "getInit",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstForStmt.getInit");
     let method_get_test = env
       .get_method_id(
         &class,
         "getTest",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstForStmt.getTest");
     let method_get_update = env
       .get_method_id(
         &class,
         "getUpdate",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstForStmt.getUpdate");
     JavaSwc4jAstForStmt {
@@ -8427,7 +8427,7 @@ impl JavaSwc4jAstFunction {
       .get_method_id(
         &class,
         "getBody",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstFunction.getBody");
     let method_get_ctxt = env
@@ -8455,14 +8455,14 @@ impl JavaSwc4jAstFunction {
       .get_method_id(
         &class,
         "getReturnType",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstFunction.getReturnType");
     let method_get_type_params = env
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstFunction.getTypeParams");
     let method_is_async = env
@@ -8699,7 +8699,7 @@ impl JavaSwc4jAstGetterProp {
       .get_method_id(
         &class,
         "getBody",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstGetterProp.getBody");
     let method_get_key = env
@@ -8713,7 +8713,7 @@ impl JavaSwc4jAstGetterProp {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstGetterProp.getTypeAnn");
     JavaSwc4jAstGetterProp {
@@ -9057,7 +9057,7 @@ impl JavaSwc4jAstIfStmt {
       .get_method_id(
         &class,
         "getAlt",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstIfStmt.getAlt");
     let method_get_cons = env
@@ -9296,7 +9296,7 @@ impl JavaSwc4jAstImportDecl {
       .get_method_id(
         &class,
         "getWith",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstImportDecl.getWith");
     let method_is_type_only = env
@@ -9545,7 +9545,7 @@ impl JavaSwc4jAstImportNamedSpecifier {
       .get_method_id(
         &class,
         "getImported",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstImportNamedSpecifier.getImported");
     let method_get_local = env
@@ -9815,7 +9815,7 @@ impl JavaSwc4jAstJsxAttr {
       .get_method_id(
         &class,
         "getValue",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstJsxAttr.getValue");
     JavaSwc4jAstJsxAttr {
@@ -10053,7 +10053,7 @@ impl JavaSwc4jAstJsxElement {
       .get_method_id(
         &class,
         "getClosing",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstJsxElement.getClosing");
     let method_get_opening = env
@@ -10680,7 +10680,7 @@ impl JavaSwc4jAstJsxOpeningElement {
       .get_method_id(
         &class,
         "getTypeArgs",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstJsxOpeningElement.getTypeArgs");
     let method_is_self_closing = env
@@ -11699,7 +11699,7 @@ impl JavaSwc4jAstModule {
       .get_method_id(
         &class,
         "getShebang",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstModule.getShebang");
     JavaSwc4jAstModule {
@@ -11811,14 +11811,14 @@ impl JavaSwc4jAstNamedExport {
       .get_method_id(
         &class,
         "getSrc",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstNamedExport.getSrc");
     let method_get_with = env
       .get_method_id(
         &class,
         "getWith",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstNamedExport.getWith");
     let method_is_type_only = env
@@ -11968,7 +11968,7 @@ impl JavaSwc4jAstNewExpr {
       .get_method_id(
         &class,
         "getArgs",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstNewExpr.getArgs");
     let method_get_callee = env
@@ -11989,7 +11989,7 @@ impl JavaSwc4jAstNewExpr {
       .get_method_id(
         &class,
         "getTypeArgs",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstNewExpr.getTypeArgs");
     JavaSwc4jAstNewExpr {
@@ -12181,7 +12181,7 @@ impl JavaSwc4jAstNumber {
       .get_method_id(
         &class,
         "getRaw",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstNumber.getRaw");
     let method_get_value = env
@@ -12376,7 +12376,7 @@ impl JavaSwc4jAstObjectPat {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstObjectPat.getTypeAnn");
     let method_is_optional = env
@@ -12526,7 +12526,7 @@ impl JavaSwc4jAstOptCall {
       .get_method_id(
         &class,
         "getTypeArgs",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstOptCall.getTypeArgs");
     JavaSwc4jAstOptCall {
@@ -12967,7 +12967,7 @@ impl JavaSwc4jAstPrivateMethod {
       .get_method_id(
         &class,
         "getAccessibility",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstPrivateMethod.getAccessibility");
     let method_get_function = env
@@ -13327,7 +13327,7 @@ impl JavaSwc4jAstPrivateProp {
       .get_method_id(
         &class,
         "getAccessibility",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstPrivateProp.getAccessibility");
     let method_get_ctxt = env
@@ -13355,14 +13355,14 @@ impl JavaSwc4jAstPrivateProp {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstPrivateProp.getTypeAnn");
     let method_get_value = env
       .get_method_id(
         &class,
         "getValue",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstPrivateProp.getValue");
     let method_is_definite = env
@@ -13807,7 +13807,7 @@ impl JavaSwc4jAstRestPat {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstRestPat.getTypeAnn");
     JavaSwc4jAstRestPat {
@@ -13928,7 +13928,7 @@ impl JavaSwc4jAstReturnStmt {
       .get_method_id(
         &class,
         "getArg",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstReturnStmt.getArg");
     JavaSwc4jAstReturnStmt {
@@ -14015,7 +14015,7 @@ impl JavaSwc4jAstScript {
       .get_method_id(
         &class,
         "getShebang",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstScript.getShebang");
     JavaSwc4jAstScript {
@@ -14199,7 +14199,7 @@ impl JavaSwc4jAstSetterProp {
       .get_method_id(
         &class,
         "getBody",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstSetterProp.getBody");
     let method_get_key = env
@@ -14220,7 +14220,7 @@ impl JavaSwc4jAstSetterProp {
       .get_method_id(
         &class,
         "getThisParam",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstSetterProp.getThisParam");
     JavaSwc4jAstSetterProp {
@@ -14550,7 +14550,7 @@ impl JavaSwc4jAstStr {
       .get_method_id(
         &class,
         "getRaw",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstStr.getRaw");
     let method_get_value = env
@@ -14829,7 +14829,7 @@ impl JavaSwc4jAstSwitchCase {
       .get_method_id(
         &class,
         "getTest",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstSwitchCase.getTest");
     JavaSwc4jAstSwitchCase {
@@ -15061,7 +15061,7 @@ impl JavaSwc4jAstTaggedTpl {
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTaggedTpl.getTypeParams");
     JavaSwc4jAstTaggedTpl {
@@ -15441,7 +15441,7 @@ impl JavaSwc4jAstTplElement {
       .get_method_id(
         &class,
         "getCooked",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTplElement.getCooked");
     let method_get_raw = env
@@ -15589,14 +15589,14 @@ impl JavaSwc4jAstTryStmt {
       .get_method_id(
         &class,
         "getFinalizer",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTryStmt.getFinalizer");
     let method_get_handler = env
       .get_method_id(
         &class,
         "getHandler",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTryStmt.getHandler");
     JavaSwc4jAstTryStmt {
@@ -15913,14 +15913,14 @@ impl JavaSwc4jAstTsCallSignatureDecl {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsCallSignatureDecl.getTypeAnn");
     let method_get_type_params = env
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsCallSignatureDecl.getTypeParams");
     JavaSwc4jAstTsCallSignatureDecl {
@@ -16295,14 +16295,14 @@ impl JavaSwc4jAstTsConstructSignatureDecl {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsConstructSignatureDecl.getTypeAnn");
     let method_get_type_params = env
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsConstructSignatureDecl.getTypeParams");
     JavaSwc4jAstTsConstructSignatureDecl {
@@ -16440,7 +16440,7 @@ impl JavaSwc4jAstTsConstructorType {
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsConstructorType.getTypeParams");
     let method_is_abstract = env
@@ -16757,7 +16757,7 @@ impl JavaSwc4jAstTsEnumMember {
       .get_method_id(
         &class,
         "getInit",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsEnumMember.getInit");
     JavaSwc4jAstTsEnumMember {
@@ -16944,7 +16944,7 @@ impl JavaSwc4jAstTsExprWithTypeArgs {
       .get_method_id(
         &class,
         "getTypeArgs",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsExprWithTypeArgs.getTypeArgs");
     JavaSwc4jAstTsExprWithTypeArgs {
@@ -17139,7 +17139,7 @@ impl JavaSwc4jAstTsFnType {
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsFnType.getTypeParams");
     JavaSwc4jAstTsFnType {
@@ -17269,7 +17269,7 @@ impl JavaSwc4jAstTsGetterSignature {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsGetterSignature.getTypeAnn");
     let method_is_computed = env
@@ -17566,14 +17566,14 @@ impl JavaSwc4jAstTsImportType {
       .get_method_id(
         &class,
         "getQualifier",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsImportType.getQualifier");
     let method_get_type_args = env
       .get_method_id(
         &class,
         "getTypeArgs",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsImportType.getTypeArgs");
     JavaSwc4jAstTsImportType {
@@ -17704,7 +17704,7 @@ impl JavaSwc4jAstTsIndexSignature {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsIndexSignature.getTypeAnn");
     let method_is_readonly = env
@@ -18282,7 +18282,7 @@ impl JavaSwc4jAstTsInterfaceDecl {
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsInterfaceDecl.getTypeParams");
     let method_is_declare = env
@@ -18691,28 +18691,28 @@ impl JavaSwc4jAstTsMappedType {
       .get_method_id(
         &class,
         "getNameType",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsMappedType.getNameType");
     let method_get_optional = env
       .get_method_id(
         &class,
         "getOptional",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsMappedType.getOptional");
     let method_get_readonly = env
       .get_method_id(
         &class,
         "getReadonly",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsMappedType.getReadonly");
     let method_get_type_ann = env
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsMappedType.getTypeAnn");
     let method_get_type_param = env
@@ -18901,14 +18901,14 @@ impl JavaSwc4jAstTsMethodSignature {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsMethodSignature.getTypeAnn");
     let method_get_type_params = env
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsMethodSignature.getTypeParams");
     let method_is_computed = env
@@ -19184,7 +19184,7 @@ impl JavaSwc4jAstTsModuleDecl {
       .get_method_id(
         &class,
         "getBody",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsModuleDecl.getBody");
     let method_get_id = env
@@ -19746,7 +19746,7 @@ impl JavaSwc4jAstTsParamProp {
       .get_method_id(
         &class,
         "getAccessibility",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsParamProp.getAccessibility");
     let method_get_decorators = env
@@ -20023,7 +20023,7 @@ impl JavaSwc4jAstTsPropertySignature {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsPropertySignature.getTypeAnn");
     let method_is_computed = env
@@ -20790,7 +20790,7 @@ impl JavaSwc4jAstTsTupleElement {
       .get_method_id(
         &class,
         "getLabel",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsTupleElement.getLabel");
     let method_get_ty = env
@@ -20993,7 +20993,7 @@ impl JavaSwc4jAstTsTypeAliasDecl {
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsTypeAliasDecl.getTypeParams");
     let method_is_declare = env
@@ -21519,14 +21519,14 @@ impl JavaSwc4jAstTsTypeParam {
       .get_method_id(
         &class,
         "getConstraint",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsTypeParam.getConstraint");
     let method_get_default = env
       .get_method_id(
         &class,
         "getDefault",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsTypeParam.getDefault");
     let method_get_name = env
@@ -21899,7 +21899,7 @@ impl JavaSwc4jAstTsTypePredicate {
       .get_method_id(
         &class,
         "getTypeAnn",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsTypePredicate.getTypeAnn");
     let method_is_asserts = env
@@ -22033,7 +22033,7 @@ impl JavaSwc4jAstTsTypeQuery {
       .get_method_id(
         &class,
         "getTypeArgs",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsTypeQuery.getTypeArgs");
     JavaSwc4jAstTsTypeQuery {
@@ -22141,7 +22141,7 @@ impl JavaSwc4jAstTsTypeRef {
       .get_method_id(
         &class,
         "getTypeParams",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstTsTypeRef.getTypeParams");
     JavaSwc4jAstTsTypeRef {
@@ -22834,7 +22834,7 @@ impl JavaSwc4jAstVarDeclarator {
       .get_method_id(
         &class,
         "getInit",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstVarDeclarator.getInit");
     let method_get_name = env
@@ -23184,7 +23184,7 @@ impl JavaSwc4jAstYieldExpr {
       .get_method_id(
         &class,
         "getArg",
-        "()Lj$/util/Optional;",
+        "()Ljava/util/Optional;",
       )
       .expect("Couldn't find method Swc4jAstYieldExpr.getArg");
     let method_is_delegate = env
