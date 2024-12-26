@@ -1,6 +1,6 @@
 
-
-name: swc4j Build
+ 
+name: swc4j x86_64 Build
 
 on:
   pull_request:
