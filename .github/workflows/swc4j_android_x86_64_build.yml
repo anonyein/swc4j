@@ -31,7 +31,7 @@ jobs:
             ndk-arch: x86_64
             ext: .so
             channel: stable
-            target: aarch64-linux-android
+            target: x86_64-linux-android
 
     name: Build swc4j for ${{ matrix.os }} ${{ matrix.arch }}
     runs-on: ${{ matrix.image }}
